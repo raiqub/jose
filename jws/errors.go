@@ -16,12 +16,26 @@
 
 package jws
 
-type Algorithm string
+import (
+	"fmt"
+)
 
-func NewAlgorithm(method SigningMethod) Algorithm {
-	return Algorithm(method.Alg())
+type ErrHashUnavailable string
+
+func (e ErrHashUnavailable) Error() string {
+	return fmt.Sprintf(
+		"The specified hash function is not available to current binary: %s",
+		string(e))
 }
 
-func (a Algorithm) ToSigningMethod() SigningMethod {
-	return GetSigningMethod(string(a))
+type ErrInvalidKey int
+
+func (e ErrInvalidKey) Error() string {
+	return "The key provided is invalid"
+}
+
+type ErrSignatureInvalid int
+
+func (e ErrSignatureInvalid) Error() string {
+	return "The provided signature doesn't match input data"
 }

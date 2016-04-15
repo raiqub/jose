@@ -14,14 +14,5 @@
  * limitations under the License.
  */
 
+// Package jws implements JSON Web Signature (JWS) specification.
 package jws
-
-type Algorithm string
-
-func NewAlgorithm(method SigningMethod) Algorithm {
-	return Algorithm(method.Alg())
-}
-
-func (a Algorithm) ToSigningMethod() SigningMethod {
-	return GetSigningMethod(string(a))
-}

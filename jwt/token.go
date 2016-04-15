@@ -127,7 +127,11 @@ func DecodeAndValidate(
 		return nil, err
 	}
 
-	if err := method.Verify(token[:lastDotIdx], segs[2], key); err != nil {
+	if err := method.Verify(
+		bytes.NewBufferString(token[:lastDotIdx]),
+		bytes.NewBufferString(segs[2]),
+		key,
+	); err != nil {
 		return nil, ErrorInvalidSignature(token)
 	}
 
@@ -163,7 +167,7 @@ func (j *Token) EncodeAndSign(key interface{}) (string, error) {
 		return "", jwk.UnhandledAlgorithm(j.Header.GetAlgorithm())
 	}
 
-	sig, err := method.Sign(encbuf.String(), key)
+	sig, err := method.Sign(encbuf, key)
 	if err != nil {
 		return "", err
 	}
