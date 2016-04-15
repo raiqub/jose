@@ -14,5 +14,26 @@
  * limitations under the License.
  */
 
-// Package jwk implements JSON Web Key (JWK) specification.
-package jwk
+package jwt
+
+import (
+	"encoding/json"
+	"time"
+)
+
+type TokenPayload interface {
+	GetExpireAt() time.Time
+	GetIssuedAt() time.Time
+	GetIssuer() string
+	GetNotBefore() time.Time
+	GetScopes() []string
+	GetUserScopes() []string
+
+	SetExpireAt(time.Time)
+	SetIssuedAt(time.Time)
+	SetIssuer(string)
+	SetNotBefore(time.Time)
+
+	json.Marshaler
+	json.Unmarshaler
+}

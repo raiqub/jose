@@ -14,5 +14,18 @@
  * limitations under the License.
  */
 
-// Package jwk implements JSON Web Key (JWK) specification.
-package jwk
+package jwt
+
+import (
+	"encoding/json"
+)
+
+type TokenHeader interface {
+	GetID() string
+	GetType() string
+	GetAlgorithm() string
+	GetJWKSetURL() string
+
+	json.Marshaler
+	json.Unmarshaler
+}

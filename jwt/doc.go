@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-// Package jwk implements JSON Web Key (JWK) specification.
-package jwk
+// Package jwt implements JSON Web Token (JWT) specification.
+package jwt

@@ -14,5 +14,16 @@
  * limitations under the License.
  */
 
-// Package jwk implements JSON Web Key (JWK) specification.
-package jwk
+package jwt
+
+import "time"
+
+type UnixTime int64
+
+func NewUnixTime(dt time.Time) UnixTime {
+	return UnixTime(dt.Unix())
+}
+
+func (ut UnixTime) ToTime() time.Time {
+	return time.Unix(int64(ut), 0)
+}

@@ -14,5 +14,16 @@
  * limitations under the License.
  */
 
-// Package jwk implements JSON Web Key (JWK) specification.
-package jwk
+package jws
+
+import "gopkg.in/dgrijalva/jwt-go.v2"
+
+type Algorithm string
+
+func NewAlgorithm(method jwt.SigningMethod) Algorithm {
+	return Algorithm(method.Alg())
+}
+
+func (a Algorithm) ToSigningMethod() jwt.SigningMethod {
+	return jwt.GetSigningMethod(string(a))
+}
