@@ -22,13 +22,12 @@ import (
 
 // An ErrHashUnavailable represents an error when requested hash function is not
 // implemented to current binary.
-type ErrHashUnavailable string
+type ErrHashUnavailable uint
 
 // Error returns string representation of current instance error.
 func (e ErrHashUnavailable) Error() string {
 	return fmt.Sprintf(
-		"The specified hash function is not available to current binary: %s",
-		string(e))
+		"The specified hash function #%d is unavailable", uint(e))
 }
 
 // An ErrInvalidKey represents an error when cryptografic key type is not

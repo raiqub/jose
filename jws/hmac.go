@@ -30,54 +30,25 @@ import (
 	_ "crypto/sha512"
 )
 
-// SigningMethodHMAC implements the HMAC-SHA family of signing methods.
-type SigningMethodHMAC struct {
-	Name string
-	Hash crypto.Hash
+type hmacAlg struct {
+	crypto.Hash
 }
-
-var (
-	// SigningMethodHS256 defines the signing method for HS256 algorithm.
-	SigningMethodHS256 *SigningMethodHMAC
-
-	// SigningMethodHS384 defines the signing method for HS384 algorithm.
-	SigningMethodHS384 *SigningMethodHMAC
-
-	// SigningMethodHS512 defines the signing method for HS512 algorithm.
-	SigningMethodHS512 *SigningMethodHMAC
-)
 
 func init() {
-	// HS256
-	SigningMethodHS256 = &SigningMethodHMAC{"HS256", crypto.SHA256}
-	RegisterSigningMethod(SigningMethodHS256.Name, func() SigningMethod {
-		return SigningMethodHS256
+	RegisterAlgorithm(HS256, func() SigningMethod {
+		return hmacAlg{crypto.SHA256}
 	})
 
-	// HS384
-	SigningMethodHS384 = &SigningMethodHMAC{"HS384", crypto.SHA384}
-	RegisterSigningMethod(SigningMethodHS384.Name, func() SigningMethod {
-		return SigningMethodHS384
+	RegisterAlgorithm(HS384, func() SigningMethod {
+		return hmacAlg{crypto.SHA384}
 	})
 
-	// HS512
-	SigningMethodHS512 = &SigningMethodHMAC{"HS512", crypto.SHA512}
-	RegisterSigningMethod(SigningMethodHS512.Name, func() SigningMethod {
-		return SigningMethodHS512
+	RegisterAlgorithm(HS512, func() SigningMethod {
+		return hmacAlg{crypto.SHA512}
 	})
 }
 
-// Algorithm returns the algorithm code for this method (e.g. 'HS256').
-func (m *SigningMethodHMAC) Algorithm() string {
-	return m.Name
-}
-
-// Verify the signature of HMAC-SHA signed tokens.
-// Returns nil if the signature is valid.
-func (m *SigningMethodHMAC) Verify(
-	input, signature io.Reader,
-	key interface{},
-) error {
+func (m hmacAlg) Verify(input, signature io.Reader, key interface{}) error {
 	// Verify the key is the right type
 	keyBytes, ok := key.([]byte)
 	if !ok {
@@ -86,7 +57,7 @@ func (m *SigningMethodHMAC) Verify(
 
 	// Can we use the specified hashing method?
 	if !m.Hash.Available() {
-		return ErrHashUnavailable(m.Name)
+		return ErrHashUnavailable(m.Hash)
 	}
 
 	// Decode signature, for comparison
@@ -125,11 +96,7 @@ func (m *SigningMethodHMAC) Verify(
 	return nil
 }
 
-// Sign generates a signature for input data.
-func (m *SigningMethodHMAC) Sign(
-	input io.Reader,
-	key interface{},
-) (string, error) {
+func (m hmacAlg) Sign(input io.Reader, key interface{}) (string, error) {
 	// Verify the key is the right type
 	keyBytes, ok := key.([]byte)
 	if !ok {
@@ -138,7 +105,7 @@ func (m *SigningMethodHMAC) Sign(
 
 	// Can we use the specified hashing method?
 	if !m.Hash.Available() {
-		return "", ErrHashUnavailable(m.Name)
+		return "", ErrHashUnavailable(m.Hash)
 	}
 
 	// Generate a signature for input data
