@@ -1,3 +1,20 @@
+/*
+ * Copyright 2012 Dave Grijalva
+ * Copyright 2016 Fabrício Godoy
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package jws_test
 
 import (
@@ -5,7 +22,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/raiqub/jose/jws"
 )
 
 var hmacTestData = []struct {
@@ -50,10 +67,13 @@ var hmacTestKey, _ = ioutil.ReadFile("test/hmacTestKey")
 
 func TestHMACVerify(t *testing.T) {
 	for _, data := range hmacTestData {
-		parts := strings.Split(data.tokenString, ".")
+		lastDotIdx := strings.LastIndex(data.tokenString, ".")
 
-		method := jwt.GetSigningMethod(data.alg)
-		err := method.Verify(strings.Join(parts[0:2], "."), parts[2], hmacTestKey)
+		method := jws.GetSigningMethod(data.alg)
+		input := strings.NewReader(data.tokenString[:lastDotIdx])
+		signature := strings.NewReader(data.tokenString[lastDotIdx+1:])
+
+		err := method.Verify(input, signature, hmacTestKey)
 		if data.valid && err != nil {
 			t.Errorf("[%v] Error while verifying key: %v", data.name, err)
 		}
@@ -67,8 +87,11 @@ func TestHMACSign(t *testing.T) {
 	for _, data := range hmacTestData {
 		if data.valid {
 			parts := strings.Split(data.tokenString, ".")
-			method := jwt.GetSigningMethod(data.alg)
-			sig, err := method.Sign(strings.Join(parts[0:2], "."), hmacTestKey)
+			lastDotIdx := strings.LastIndex(data.tokenString, ".")
+
+			method := jws.GetSigningMethod(data.alg)
+			input := strings.NewReader(data.tokenString[:lastDotIdx])
+			sig, err := method.Sign(input, hmacTestKey)
 			if err != nil {
 				t.Errorf("[%v] Error signing token: %v", data.name, err)
 			}
@@ -80,13 +103,13 @@ func TestHMACSign(t *testing.T) {
 }
 
 func BenchmarkHS256Signing(b *testing.B) {
-	benchmarkSigning(b, jwt.SigningMethodHS256, hmacTestKey)
+	benchmarkSigning(b, jws.SigningMethodHS256, hmacTestKey)
 }
 
 func BenchmarkHS384Signing(b *testing.B) {
-	benchmarkSigning(b, jwt.SigningMethodHS384, hmacTestKey)
+	benchmarkSigning(b, jws.SigningMethodHS384, hmacTestKey)
 }
 
 func BenchmarkHS512Signing(b *testing.B) {
-	benchmarkSigning(b, jwt.SigningMethodHS512, hmacTestKey)
+	benchmarkSigning(b, jws.SigningMethodHS512, hmacTestKey)
 }

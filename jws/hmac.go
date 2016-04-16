@@ -20,9 +20,12 @@ package jws
 import (
 	"crypto"
 	"crypto/hmac"
+	_ "crypto/sha256"
+	_ "crypto/sha512"
 	"encoding/base64"
 	"io"
 	"io/ioutil"
+	"runtime"
 )
 
 // Implements the HMAC-SHA family of signing methods signing methods
@@ -79,10 +82,25 @@ func (m *SigningMethodHMAC) Verify(
 	}
 
 	// Decode signature, for comparison
-	sig, err := ioutil.ReadAll(
-		base64.NewDecoder(base64.RawURLEncoding, signature))
-	if err != nil {
-		return err
+	var sig []byte
+	var err error
+	if runtime.Version()[:5] == "go1.5" {
+		// Buggy base64 Decoder (Go 1.5)
+		// Test code: http://play.golang.org/p/O4NzYl9C6e
+		buf, err := ioutil.ReadAll(signature)
+		if err != nil {
+			return err
+		}
+		sig, err = base64.RawURLEncoding.DecodeString(string(buf))
+		if err != nil {
+			return err
+		}
+	} else {
+		sig, err = ioutil.ReadAll(
+			base64.NewDecoder(base64.RawURLEncoding, signature))
+		if err != nil {
+			return err
+		}
 	}
 
 	// This signing method is symmetric, so we validate the signature

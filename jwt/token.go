@@ -42,6 +42,18 @@ func NewToken(header TokenHeader, payload TokenPayload) *Token {
 	}
 }
 
+func NewTokenByAlg(method jws.SigningMethod) *Token {
+	header := &Header{
+		Type:      JWTHeaderType,
+		Algorithm: jws.NewAlgorithm(method),
+	}
+
+	return &Token{
+		header,
+		&Payload{},
+	}
+}
+
 func (j *Token) Validate() bool {
 	now := time.Now().Unix()
 	exp := j.Payload.GetExpireAt().Unix()
@@ -128,8 +140,8 @@ func DecodeAndValidate(
 	}
 
 	if err := method.Verify(
-		bytes.NewBufferString(token[:lastDotIdx]),
-		bytes.NewBufferString(segs[2]),
+		strings.NewReader(token[:lastDotIdx]),
+		strings.NewReader(segs[2]),
 		key,
 	); err != nil {
 		return nil, ErrorInvalidSignature(token)
