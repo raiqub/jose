@@ -90,7 +90,7 @@ func curveFromName(cname string) (elliptic.Curve, error) {
 	case "P-521":
 		return elliptic.P521(), nil
 	default:
-		return nil, UnsupportedEllipticCurve(0)
+		return nil, ErrUnsupportedEC(cname)
 	}
 }
 
@@ -104,7 +104,7 @@ func curveName(crv elliptic.Curve) (string, error) {
 	case elliptic.P521():
 		return "P-521", nil
 	default:
-		return "", UnsupportedEllipticCurve(0)
+		return "", ErrUnsupportedEC("?")
 	}
 }
 

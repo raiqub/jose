@@ -21,7 +21,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 
-	"github.com/raiqub/jose/jwk"
+	"github.com/raiqub/jose/jws"
 )
 
 func newECDSAKey(alg string) (*ecdsa.PrivateKey, error) {
@@ -34,7 +34,7 @@ func newECDSAKey(alg string) (*ecdsa.PrivateKey, error) {
 	case "ES512":
 		curve = elliptic.P521()
 	default:
-		return nil, jwk.UnhandledAlgorithm(alg)
+		return nil, jws.ErrAlgUnavailable(alg)
 	}
 
 	key, err := ecdsa.GenerateKey(curve, rand.Reader)

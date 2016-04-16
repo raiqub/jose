@@ -83,12 +83,13 @@ func NewAlgorithm(alg string) Algorithm {
 }
 
 // New returns a new SigningMethod for signing or verifying tokens.
-func (a Algorithm) New() SigningMethod {
+// Returns ErrAlgUnavailable when the algorithm method is not implemented.
+func (a Algorithm) New() (SigningMethod, error) {
 	if m, ok := methods[string(a)]; ok {
-		return m()
+		return m(), nil
 	}
 
-	return nil
+	return nil, ErrAlgUnavailable(string(a))
 }
 
 // Available reports whether an implementation to current Algorithm is
@@ -96,6 +97,11 @@ func (a Algorithm) New() SigningMethod {
 func (a Algorithm) Available() bool {
 	_, ok := methods[string(a)]
 	return ok
+}
+
+// String returns the string representation of current algorithm.
+func (a Algorithm) String() string {
+	return string(a)
 }
 
 // RegisterAlgorithm registers a function that returns a new instance of the

@@ -20,30 +20,26 @@ import (
 	"time"
 
 	"github.com/raiqub/jose/jwk"
+	"github.com/raiqub/jose/jws"
 )
 
 // New generates a new key based on parameters settings.
-func New(alg string, size, days int) (*jwk.Key, error) {
-	if len(alg) != 5 {
-		return nil, jwk.UnhandledAlgorithm(alg)
-	}
-	switch alg[2:] {
-	case "256", "384", "512":
-	default:
-		return nil, jwk.UnhandledAlgorithm(alg)
+func New(alg jws.Algorithm, size, days int) (*jwk.Key, error) {
+	if !alg.Available() {
+		return nil, jws.ErrAlgUnavailable(alg)
 	}
 
 	var key interface{}
 	var err error
 	switch alg[0:2] {
 	case "ES":
-		key, err = newECDSAKey(alg)
+		key, err = newECDSAKey(alg.String())
 	case "HS":
-		key, err = newSymKey(alg, size)
+		key, err = newSymKey(alg.String(), size)
 	case "RS", "PS":
-		key, err = newRSAKey(alg, size)
+		key, err = newRSAKey(alg.String(), size)
 	default:
-		return nil, jwk.UnhandledAlgorithm(alg)
+		return nil, jws.ErrAlgUnavailable(alg)
 	}
 
 	if err != nil {

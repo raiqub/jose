@@ -22,6 +22,8 @@ import (
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"time"
+
+	"github.com/raiqub/jose/jws"
 )
 
 const (
@@ -110,7 +112,7 @@ func (k *Key) Key() (interface{}, error) {
 	case KeyTypeSymmetric:
 		return k.getSymmetric()
 	default:
-		return nil, UnknownJWKType(k.Type)
+		return nil, ErrUnknownType(k.Type)
 	}
 }
 
@@ -126,14 +128,9 @@ func (k *Key) RemovePrivateFields() {
 }
 
 // SetKey parses specified raw key and sets current key to match it.
-func (k *Key) SetKey(key interface{}, alg string) error {
-	if len(alg) != 5 {
-		return UnhandledAlgorithm(alg)
-	}
-	switch alg[2:] {
-	case "256", "384", "512":
-	default:
-		return UnhandledAlgorithm(alg)
+func (k *Key) SetKey(key interface{}, alg jws.Algorithm) error {
+	if !alg.Available() {
+		return jws.ErrAlgUnavailable(alg)
 	}
 
 	var err error
@@ -149,7 +146,7 @@ func (k *Key) SetKey(key interface{}, alg string) error {
 	case []byte:
 		err = k.setSymmetric(keyCast)
 	default:
-		return UnknownKeyType{key}
+		return jws.ErrInvalidKey{key}
 	}
 	if err != nil {
 		return err
@@ -158,24 +155,24 @@ func (k *Key) SetKey(key interface{}, alg string) error {
 	switch k.Type {
 	case KeyTypeECDSA:
 		if alg[:2] != "ES" {
-			return IncompatibleAlgorithm{k.Type, alg}
+			return ErrIncompatibleAlg{k.Type, alg.String()}
 		}
 	case KeyTypeRSA:
 		if alg[:2] != "RS" && alg[:2] != "PS" {
-			return IncompatibleAlgorithm{k.Type, alg}
+			return ErrIncompatibleAlg{k.Type, alg.String()}
 		}
 	case KeyTypeSymmetric:
 		if alg[:2] != "HS" {
-			return IncompatibleAlgorithm{k.Type, alg}
+			return ErrIncompatibleAlg{k.Type, alg.String()}
 		}
 	}
 
 	if len(k.ID) == 0 {
 		if err := k.GenerateID(); err != nil {
-			return ErrorGeneratingID(err.Error())
+			return ErrGenID(err.Error())
 		}
 	}
 
-	k.Algorithm = alg
+	k.Algorithm = alg.String()
 	return nil
 }

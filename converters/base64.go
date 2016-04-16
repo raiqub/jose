@@ -55,7 +55,7 @@ func (b64) FromInt(n int, trim bool) string {
 		data = make([]byte, 8)
 		binary.BigEndian.PutUint64(data, uint64(n))
 	default:
-		panic(UnsupportedIntegerSize(strconv.IntSize))
+		panic(ErrUnsupportedIntSize(strconv.IntSize))
 	}
 
 	if trim {
@@ -96,7 +96,7 @@ func (b64) ToInt(src string) (int, error) {
 		}
 		return int(binary.BigEndian.Uint64(data)), nil
 	default:
-		panic(UnsupportedIntegerSize(strconv.IntSize))
+		panic(ErrUnsupportedIntSize(strconv.IntSize))
 	}
 }
 

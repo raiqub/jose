@@ -20,6 +20,16 @@ import (
 	"fmt"
 )
 
+// An ErrAlgUnavailable represents an error when requested algorithm method is
+// not implemented.
+type ErrAlgUnavailable string
+
+// Error returns string representation of current instance error.
+func (e ErrAlgUnavailable) Error() string {
+	return fmt.Sprintf(
+		"The specified algorithm method '%s' is unavailable", string(e))
+}
+
 // An ErrHashUnavailable represents an error when requested hash function is not
 // implemented to current binary.
 type ErrHashUnavailable uint
@@ -32,11 +42,13 @@ func (e ErrHashUnavailable) Error() string {
 
 // An ErrInvalidKey represents an error when cryptografic key type is not
 // supported.
-type ErrInvalidKey int
+type ErrInvalidKey struct {
+	Value interface{}
+}
 
 // Error returns string representation of current instance error.
 func (e ErrInvalidKey) Error() string {
-	return "The key provided is invalid"
+	return fmt.Sprintf("Unsupported key type: %T", e.Value)
 }
 
 // An ErrSignatureInvalid represents an error when token signature doesn't match

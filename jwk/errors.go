@@ -20,63 +20,43 @@ import (
 	"fmt"
 )
 
-// An ErrorGeneratingID represents an error when could not generate a new
-// identifier for a JWK key.
-type ErrorGeneratingID string
+// An ErrGenID represents an error when could not generate a new identifier for
+// a JWK key.
+type ErrGenID string
 
 // Error returns string representation of current instance error.
-func (e ErrorGeneratingID) Error() string {
+func (e ErrGenID) Error() string {
 	return fmt.Sprintf("Error generating key identifier: %s", string(e))
 }
 
-// An IncompatibleAlgorithm represents an error when key type and algorithm are
-// not compatible with each other.
-type IncompatibleAlgorithm struct {
+// An ErrIncompatibleAlg represents an error when key type and algorithm are not
+// compatible with each other.
+type ErrIncompatibleAlg struct {
 	Type      string
 	Algorithm string
 }
 
 // Error returns string representation of current instance error.
-func (e IncompatibleAlgorithm) Error() string {
+func (e ErrIncompatibleAlg) Error() string {
 	return fmt.Sprintf(
 		"The algorithm '%s' is not compatible with '%s' key type",
 		e.Algorithm, e.Type)
 }
 
-// An UnhandledAlgorithm represents an error when specified algorithm is not
-// supported by current implementation.
-type UnhandledAlgorithm string
+// An ErrUnknownType represents an error when the type specified for JWK key is
+// not supported by current implementation.
+type ErrUnknownType string
 
 // Error returns string representation of current instance error.
-func (e UnhandledAlgorithm) Error() string {
-	return fmt.Sprintf("Unhandled algorithm: %s", string(e))
-}
-
-// An UnsupportedEllipticCurve represents an error when specified curve for
-// ECDSA key is not supported by current implementation.
-type UnsupportedEllipticCurve int
-
-// Error returns string representation of current instance error.
-func (e UnsupportedEllipticCurve) Error() string {
-	return "Unsupported or unknown elliptic curve"
-}
-
-// An UnknownJWKType represents an error when the type specified for JWK key is
-// supported by current implementation.
-type UnknownJWKType string
-
-// Error returns string representation of current instance error.
-func (e UnknownJWKType) Error() string {
+func (e ErrUnknownType) Error() string {
 	return fmt.Sprintf("Unknown JSON Web Key type: %s", string(e))
 }
 
-// An UnknownKeyType represents an error when specified raw key has a type that
-// is unsupported by current implementation.
-type UnknownKeyType struct {
-	Value interface{}
-}
+// An ErrUnsupportedEC represents an error when specified curve for ECDSA key is
+// not supported by current implementation.
+type ErrUnsupportedEC string
 
 // Error returns string representation of current instance error.
-func (e UnknownKeyType) Error() string {
-	return fmt.Sprintf("Unknown key type: %T", e.Value)
+func (e ErrUnsupportedEC) Error() string {
+	return fmt.Sprintf("Unsupported elliptic curve: %s", string(e))
 }

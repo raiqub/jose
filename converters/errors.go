@@ -20,12 +20,12 @@ import (
 	"fmt"
 )
 
-// An UnsupportedIntegerSize represents an error when the integer size is not
+// An ErrUnsupportedIntSize represents an error when the integer size is not
 // supported by current procedure.
-type UnsupportedIntegerSize int
+type ErrUnsupportedIntSize int
 
 // Error returns string representation of current instance error.
-func (e UnsupportedIntegerSize) Error() string {
+func (e ErrUnsupportedIntSize) Error() string {
 	return fmt.Sprintf(
 		"Current environment has unsupported integer size: %d bits", int(e))
 }

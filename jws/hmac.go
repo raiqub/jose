@@ -52,7 +52,7 @@ func (m hmacAlg) Verify(input, signature io.Reader, key interface{}) error {
 	// Verify the key is the right type
 	keyBytes, ok := key.([]byte)
 	if !ok {
-		return ErrInvalidKey(0)
+		return ErrInvalidKey{key}
 	}
 
 	// Can we use the specified hashing method?
@@ -100,7 +100,7 @@ func (m hmacAlg) Sign(input io.Reader, key interface{}) (string, error) {
 	// Verify the key is the right type
 	keyBytes, ok := key.([]byte)
 	if !ok {
-		return "", ErrInvalidKey(0)
+		return "", ErrInvalidKey{key}
 	}
 
 	// Can we use the specified hashing method?
