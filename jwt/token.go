@@ -45,7 +45,7 @@ func NewToken(header TokenHeader, payload TokenPayload) *Token {
 func NewTokenByAlg(method jws.SigningMethod) *Token {
 	header := &Header{
 		Type:      JWTHeaderType,
-		Algorithm: jws.NewAlgorithm(method),
+		Algorithm: method.Alg(),
 	}
 
 	return &Token{
@@ -126,7 +126,7 @@ func DecodeAndValidate(
 		return nil, ErrorValidation(token)
 	}
 
-	method := jws.Algorithm(j.Header.GetAlgorithm()).ToSigningMethod()
+	method := jws.GetSigningMethod(j.Header.GetAlgorithm())
 	if method == nil {
 		return nil, jwk.UnhandledAlgorithm(j.Header.GetAlgorithm())
 	}
@@ -174,7 +174,7 @@ func (j *Token) encode() *bytes.Buffer {
 
 func (j *Token) EncodeAndSign(key interface{}) (string, error) {
 	encbuf := j.encode()
-	method := jws.Algorithm(j.Header.GetAlgorithm()).ToSigningMethod()
+	method := jws.GetSigningMethod(j.Header.GetAlgorithm())
 	if method == nil {
 		return "", jwk.UnhandledAlgorithm(j.Header.GetAlgorithm())
 	}

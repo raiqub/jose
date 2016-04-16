@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"fmt"
 	fflib "github.com/pquerna/ffjson/fflib/v1"
-	"github.com/raiqub/jose/jws"
 )
 
 func (mj *Header) MarshalJSON() ([]byte, error) {
@@ -289,13 +288,13 @@ handle_Type:
 
 handle_Algorithm:
 
-	/* handler: uj.Algorithm type=jws.Algorithm kind=string quoted=false*/
+	/* handler: uj.Algorithm type=string kind=string quoted=false*/
 
 	{
 
 		{
 			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
-				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for Algorithm", tok))
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
 			}
 		}
 
@@ -305,7 +304,7 @@ handle_Algorithm:
 
 			outBuf := fs.Output.Bytes()
 
-			uj.Algorithm = jws.Algorithm(string(outBuf))
+			uj.Algorithm = string(string(outBuf))
 
 		}
 	}

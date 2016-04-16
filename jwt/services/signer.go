@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/raiqub/jose/jwk"
-	"github.com/raiqub/jose/jws"
 	"github.com/raiqub/jose/jwt"
 	"gopkg.in/mgo.v2"
 )
@@ -48,7 +47,7 @@ func (s *Signer) Create(payload jwt.TokenPayload) (string, error) {
 	header := &jwt.Header{
 		ID:        s.config.SignKeyId,
 		Type:      jwt.JWTHeaderType,
-		Algorithm: jws.Algorithm(signKey.JWK.Algorithm),
+		Algorithm: signKey.JWK.Algorithm,
 		JWKSetURL: s.config.SetURL,
 	}
 

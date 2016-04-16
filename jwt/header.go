@@ -18,20 +18,19 @@
 
 package jwt
 
-import "github.com/raiqub/jose/jws"
-
 const (
 	JWTHeaderType = "JWT"
 )
 
+// A Header represents a header of a token as defined by JWT specification.
 type Header struct {
-	ID        string        `json:"kid,omitempty"`
-	Type      string        `json:"typ"`
-	Algorithm jws.Algorithm `json:"alg"`
-	JWKSetURL string        `json:"jku,omitempty"`
+	ID        string `json:"kid,omitempty"`
+	Type      string `json:"typ"`
+	Algorithm string `json:"alg"`
+	JWKSetURL string `json:"jku,omitempty"`
 }
 
-func NewHeader(alg jws.Algorithm) *Header {
+func NewHeader(alg string) *Header {
 	return &Header{
 		Type:      JWTHeaderType,
 		Algorithm: alg,
