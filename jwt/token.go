@@ -26,14 +26,16 @@ import (
 	"github.com/raiqub/jose/jws"
 )
 
+// GetKeyFunc defines a function to retrieve a key for specified token.
 type GetKeyFunc func(*Token) (interface{}, error)
 
-// A JWT represents a JWT object.
+// A Token represents a token as defined by JWT specification.
 type Token struct {
 	Header  TokenHeader
 	Payload TokenPayload
 }
 
+// NewToken creates a new instance of Token type.
 func NewToken(header TokenHeader, payload TokenPayload) *Token {
 	return &Token{
 		header,
@@ -41,6 +43,8 @@ func NewToken(header TokenHeader, payload TokenPayload) *Token {
 	}
 }
 
+// NewTokenByAlg creates a new instance of Token type using default header and
+// payload types.
 func NewTokenByAlg(alg jws.Algorithm) *Token {
 	header := &Header{
 		Type:      JWTHeaderType,
@@ -53,7 +57,12 @@ func NewTokenByAlg(alg jws.Algorithm) *Token {
 	}
 }
 
+// Validate returns whether current token is valid by time being.
 func (j *Token) Validate() bool {
+	if j.Header.GetType() != JWTHeaderType {
+		return false
+	}
+
 	now := time.Now().Unix()
 	exp := j.Payload.GetExpireAt().Unix()
 	nbf := j.Payload.GetNotBefore().Unix()
@@ -79,6 +88,7 @@ func (j *Token) Validate() bool {
 	return true
 }
 
+// DecodeAndValidate decodes an existing token and validates it.
 func DecodeAndValidate(
 	token string,
 	header TokenHeader,
@@ -149,6 +159,7 @@ func DecodeAndValidate(
 	return j, nil
 }
 
+// Encode creates a string representation of current token.
 func (j *Token) Encode() string {
 	return j.encode().String()
 }
@@ -171,6 +182,8 @@ func (j *Token) encode() *bytes.Buffer {
 	return &buf
 }
 
+// EncodeAndSign creates a string representation of current token and appends a
+// signature.
 func (j *Token) EncodeAndSign(key interface{}) (string, error) {
 	encbuf := j.encode()
 	method, err := j.Header.GetAlgorithm().New()

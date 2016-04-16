@@ -8,11 +8,13 @@ import (
 	"gopkg.in/raiqub/dot.v1"
 )
 
+// A Verifier represents a service which provides token decoding and validation.
 type Verifier struct {
 	issuer string
 	keys   map[string]*Cache
 }
 
+// NewVerifier creates a new instance of Verifier service.
 func NewVerifier(
 	svcJWKSet jwkservices.SetService,
 	issuer string,
@@ -44,6 +46,7 @@ func NewVerifier(
 	return result, nil
 }
 
+// Verify specified token and decode it.
 func (v *Verifier) Verify(rawtoken string) (*jwt.Token, error) {
 	token, err := jwt.DecodeAndValidate(
 		rawtoken, nil, nil,
@@ -52,10 +55,10 @@ func (v *Verifier) Verify(rawtoken string) (*jwt.Token, error) {
 			var ok bool
 
 			if key, ok = v.keys[token.Header.GetID()]; !ok {
-				return nil, InvalidKeyID{token.Header.GetID()}
+				return nil, ErrInvalidKeyID(token.Header.GetID())
 			}
 			if token.Header.GetAlgorithm().String() != key.JWK.Algorithm {
-				return nil, UnexpectedSigningMethod(token.Header.GetAlgorithm())
+				return nil, ErrUnexpectedAlg(token.Header.GetAlgorithm())
 			}
 
 			return key.RawKey, nil
@@ -66,13 +69,15 @@ func (v *Verifier) Verify(rawtoken string) (*jwt.Token, error) {
 		return nil, err
 	}
 
-	if token.Payload.GetIssuer() != v.issuer {
-		return nil, InvalidToken(0)
+	if !token.Validate() ||
+		token.Payload.GetIssuer() != v.issuer {
+		return nil, ErrInvalidToken(0)
 	}
 
 	return token, nil
 }
 
+// VerifyScopes validates client and user scopes when available.
 func (v *Verifier) VerifyScopes(
 	payload jwt.TokenPayload,
 	client, user []string,

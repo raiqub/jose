@@ -112,7 +112,7 @@ func testCreateAndValidate(
 	signer, err := NewSigner(Config{
 		Issuer:    issuer,
 		SetURL:    ts.URL,
-		SignKeyId: key.ID,
+		SignKeyID: key.ID,
 		Duration:  duration,
 	}, session.DB("").C(keyColName))
 	if err != nil {

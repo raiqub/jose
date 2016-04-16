@@ -22,6 +22,8 @@ import (
 	"time"
 )
 
+// A Payload represents the payload part of a token as defined by JWT
+// specification.
 type Payload struct {
 	Issuer    string       `json:"iss"`
 	Subject   string       `json:"sub,omitempty"`
@@ -33,6 +35,7 @@ type Payload struct {
 	User      *PayloadUser `json:"user,omitempty"`
 }
 
+// A PayloadUser represents the user data embedded on token payload.
 type PayloadUser struct {
 	Name    string   `json:"name"`
 	Email   string   `json:"email"`
@@ -41,26 +44,32 @@ type PayloadUser struct {
 	Tags    []string `json:"tags"`
 }
 
+// GetExpireAt returns the token expiration date.
 func (p *Payload) GetExpireAt() time.Time {
 	return p.ExpireAt.ToTime()
 }
 
+// GetIssuedAt returns the token issue date.
 func (p *Payload) GetIssuedAt() time.Time {
 	return p.IssuedAt.ToTime()
 }
 
+// GetIssuer returns the token issuer.
 func (p *Payload) GetIssuer() string {
 	return p.Issuer
 }
 
+// GetNotBefore returns the minimal date required to use current token.
 func (p *Payload) GetNotBefore() time.Time {
 	return p.NotBefore.ToTime()
 }
 
+// GetScopes returns the scopes allowed to client.
 func (p *Payload) GetScopes() []string {
 	return p.Scopes
 }
 
+// GetUserScopes returns the scopes allowed to user.
 func (p *Payload) GetUserScopes() []string {
 	if p.User == nil {
 		return nil
@@ -69,18 +78,22 @@ func (p *Payload) GetUserScopes() []string {
 	return p.User.Scopes
 }
 
+// SetExpireAt defines the token expiration date.
 func (p *Payload) SetExpireAt(dt time.Time) {
 	p.ExpireAt = NewUnixTime(dt)
 }
 
+// SetIssuedAt defines the token issue date.
 func (p *Payload) SetIssuedAt(dt time.Time) {
 	p.IssuedAt = NewUnixTime(dt)
 }
 
+// SetIssuer defines the token issuer.
 func (p *Payload) SetIssuer(issuer string) {
 	p.Issuer = issuer
 }
 
+// SetNotBefore defines the minimal date required to use current token.
 func (p *Payload) SetNotBefore(dt time.Time) {
 	p.NotBefore = NewUnixTime(dt)
 }

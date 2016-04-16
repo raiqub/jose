@@ -4,22 +4,28 @@ import (
 	"fmt"
 )
 
-type UnexpectedSigningMethod string
+// An ErrUnexpectedAlg represents an error when a token uses an unexpected
+// algorithm for its signature.
+type ErrUnexpectedAlg string
 
-func (e UnexpectedSigningMethod) Error() string {
-	return fmt.Sprintf("Unexpected signing method: %s", string(e))
+// Error returns string representation of current instance error.
+func (e ErrUnexpectedAlg) Error() string {
+	return fmt.Sprintf("Unexpected algorithm: %s", string(e))
 }
 
-type InvalidKeyID struct {
-	Value interface{}
+// An ErrInvalidKeyID represents an error when the key identifier used to sign a
+// token could not be found.
+type ErrInvalidKeyID string
+
+// Error returns string representation of current instance error.
+func (e ErrInvalidKeyID) Error() string {
+	return fmt.Sprintf("Invalid key ID: %s", string(e))
 }
 
-func (e InvalidKeyID) Error() string {
-	return fmt.Sprintf("Invalid key ID: %v", e.Value)
-}
+// An ErrInvalidToken represents an error when a token is not valid.
+type ErrInvalidToken int
 
-type InvalidToken int
-
-func (e InvalidToken) Error() string {
+// Error returns string representation of current instance error.
+func (e ErrInvalidToken) Error() string {
 	return "Invalid token"
 }

@@ -16,26 +16,37 @@
 
 package jwt
 
+// An ErrGetKey represents an error when was unable to retrieve token signing
+// key.
 type ErrGetKey string
 
+// Error returns string representation of current instance error.
 func (e ErrGetKey) Error() string {
 	return "Error getting the signing key for token"
 }
 
+// An ErrInvalidFormat represents an error when token format is invalid.
 type ErrInvalidFormat string
 
+// Error returns string representation of current instance error.
 func (e ErrInvalidFormat) Error() string {
 	return "The format of provided token is invalid"
 }
 
+// An ErrInvalidSignature represents an error when token signature could not be
+// validated.
 type ErrInvalidSignature string
 
+// Error returns string representation of current instance error.
 func (e ErrInvalidSignature) Error() string {
 	return "The token signature is invalid"
 }
 
+// An ErrInvalidToken represents an error when a token is not valid by time
+// being.
 type ErrInvalidToken string
 
+// Error returns string representation of current instance error.
 func (e ErrInvalidToken) Error() string {
 	return "Error validating JWT token"
 }

@@ -22,6 +22,8 @@ import (
 	"github.com/raiqub/jose/jws"
 )
 
+// A TokenHeader represents the header part of a token as defined by JWT
+// specification.
 type TokenHeader interface {
 	GetID() string
 	GetType() string

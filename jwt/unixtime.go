@@ -18,12 +18,17 @@ package jwt
 
 import "time"
 
+// A UnixTime represents an instant in time from the number of seconds elapsed
+// since January 1, 1970 UTC.
 type UnixTime int64
 
+// NewUnixTime create a new instance of UnixTime from Time.
 func NewUnixTime(dt time.Time) UnixTime {
 	return UnixTime(dt.Unix())
 }
 
+// ToTime returns a Time instance that represents same instant in time of
+// current instance.
 func (ut UnixTime) ToTime() time.Time {
 	return time.Unix(int64(ut), 0)
 }

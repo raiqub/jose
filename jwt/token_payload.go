@@ -21,6 +21,8 @@ import (
 	"time"
 )
 
+// A TokenPayload represents the payload part of a token as defined by JWT
+// specification.
 type TokenPayload interface {
 	GetExpireAt() time.Time
 	GetIssuedAt() time.Time

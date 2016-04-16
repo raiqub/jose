@@ -21,10 +21,12 @@ package jwt
 import "github.com/raiqub/jose/jws"
 
 const (
+	// JWTHeaderType defines the type name for JWT header.
 	JWTHeaderType = "JWT"
 )
 
-// A Header represents a header of a token as defined by JWT specification.
+// A Header represents the header part of a token as defined by JWT
+// specification.
 type Header struct {
 	ID        string `json:"kid,omitempty"`
 	Type      string `json:"typ"`
@@ -32,6 +34,7 @@ type Header struct {
 	JWKSetURL string `json:"jku,omitempty"`
 }
 
+// NewHeader creates a new instance of Header type.
 func NewHeader(alg string) *Header {
 	return &Header{
 		Type:      JWTHeaderType,
@@ -39,18 +42,22 @@ func NewHeader(alg string) *Header {
 	}
 }
 
+// GetID returns the identifier of the key used to sign current token.
 func (h *Header) GetID() string {
 	return h.ID
 }
 
+// GetType returns the type of current token.
 func (h *Header) GetType() string {
 	return h.Type
 }
 
+// GetAlgorithm returns the algorithm used to sign current token.
 func (h *Header) GetAlgorithm() jws.Algorithm {
 	return jws.NewAlgorithm(h.Algorithm)
 }
 
+// GetJWKSetURL returns a URL to retrieve the key used to sign current token.
 func (h *Header) GetJWKSetURL() string {
 	return h.JWKSetURL
 }
