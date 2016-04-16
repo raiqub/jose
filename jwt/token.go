@@ -89,7 +89,7 @@ func DecodeAndValidate(
 
 	segs := strings.Split(token, ".")
 	if len(segs) != 3 {
-		return nil, ErrorInvalidFormat(token)
+		return nil, ErrInvalidFormat(token)
 	}
 	lastDotIdx := strings.LastIndex(token, ".")
 
@@ -122,7 +122,7 @@ func DecodeAndValidate(
 
 	j := &Token{header, payload}
 	if !j.Validate() {
-		return nil, ErrorValidation(token)
+		return nil, ErrInvalidToken(token)
 	}
 
 	method, err := j.Header.GetAlgorithm().New()
@@ -132,7 +132,7 @@ func DecodeAndValidate(
 
 	var key interface{}
 	if getKey == nil {
-		return nil, ErrorGetKey(token)
+		return nil, ErrGetKey(token)
 	}
 	if key, err = getKey(j); err != nil {
 		return nil, err
@@ -143,7 +143,7 @@ func DecodeAndValidate(
 		strings.NewReader(segs[2]),
 		key,
 	); err != nil {
-		return nil, ErrorInvalidSignature(token)
+		return nil, ErrInvalidSignature(token)
 	}
 
 	return j, nil

@@ -16,26 +16,26 @@
 
 package jwt
 
-type ErrorGetKey string
+type ErrGetKey string
 
-func (e ErrorGetKey) Error() string {
+func (e ErrGetKey) Error() string {
 	return "Error getting the signing key for token"
 }
 
-type ErrorInvalidFormat string
+type ErrInvalidFormat string
 
-func (e ErrorInvalidFormat) Error() string {
+func (e ErrInvalidFormat) Error() string {
 	return "The format of provided token is invalid"
 }
 
-type ErrorInvalidSignature string
+type ErrInvalidSignature string
 
-func (e ErrorInvalidSignature) Error() string {
+func (e ErrInvalidSignature) Error() string {
 	return "The token signature is invalid"
 }
 
-type ErrorValidation string
+type ErrInvalidToken string
 
-func (e ErrorValidation) Error() string {
+func (e ErrInvalidToken) Error() string {
 	return "Error validating JWT token"
 }
