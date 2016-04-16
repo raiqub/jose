@@ -10,6 +10,7 @@ import (
 	"github.com/raiqub/jose/jwk"
 	"github.com/raiqub/jose/jwk/keygen"
 	"github.com/raiqub/jose/jwk/services"
+	"github.com/raiqub/jose/jws"
 	"github.com/raiqub/jose/jwt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/raiqub/eval.v0"
@@ -90,7 +91,7 @@ func testCreateAndValidate(
 	session *mgo.Session,
 	t *testing.T,
 ) {
-	key, err := keygen.New(alg, keySize, 1)
+	key, err := keygen.New(jws.NewAlgorithm(alg), keySize, 1)
 	if err != nil {
 		t.Fatalf("Error generating new key: %v", err)
 	}

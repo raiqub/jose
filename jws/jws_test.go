@@ -25,8 +25,8 @@ import (
 )
 
 // Helper method for benchmarking various methods
-func benchmarkSigning(b *testing.B, method jws.SigningMethod, key interface{}) {
-	t := jwt.NewTokenByAlg(method)
+func benchmarkSigning(b *testing.B, alg jws.Algorithm, key interface{}) {
+	t := jwt.NewTokenByAlg(alg)
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
 			if _, err := t.EncodeAndSign(key); err != nil {

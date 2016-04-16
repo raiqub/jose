@@ -18,6 +18,8 @@
 
 package jwt
 
+import "github.com/raiqub/jose/jws"
+
 const (
 	JWTHeaderType = "JWT"
 )
@@ -45,8 +47,8 @@ func (h *Header) GetType() string {
 	return h.Type
 }
 
-func (h *Header) GetAlgorithm() string {
-	return string(h.Algorithm)
+func (h *Header) GetAlgorithm() jws.Algorithm {
+	return jws.NewAlgorithm(h.Algorithm)
 }
 
 func (h *Header) GetJWKSetURL() string {

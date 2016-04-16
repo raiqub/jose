@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/pquerna/ffjson/ffjson"
-	"github.com/raiqub/jose/jwk"
 	"github.com/raiqub/jose/jws"
 )
 
@@ -42,10 +41,10 @@ func NewToken(header TokenHeader, payload TokenPayload) *Token {
 	}
 }
 
-func NewTokenByAlg(method jws.SigningMethod) *Token {
+func NewTokenByAlg(alg jws.Algorithm) *Token {
 	header := &Header{
 		Type:      JWTHeaderType,
-		Algorithm: method.Algorithm(),
+		Algorithm: alg.String(),
 	}
 
 	return &Token{
@@ -126,9 +125,9 @@ func DecodeAndValidate(
 		return nil, ErrorValidation(token)
 	}
 
-	method := jws.GetSigningMethod(j.Header.GetAlgorithm())
-	if method == nil {
-		return nil, jwk.UnhandledAlgorithm(j.Header.GetAlgorithm())
+	method, err := j.Header.GetAlgorithm().New()
+	if err != nil {
+		return nil, err
 	}
 
 	var key interface{}
@@ -174,9 +173,9 @@ func (j *Token) encode() *bytes.Buffer {
 
 func (j *Token) EncodeAndSign(key interface{}) (string, error) {
 	encbuf := j.encode()
-	method := jws.GetSigningMethod(j.Header.GetAlgorithm())
-	if method == nil {
-		return "", jwk.UnhandledAlgorithm(j.Header.GetAlgorithm())
+	method, err := j.Header.GetAlgorithm().New()
+	if err != nil {
+		return "", err
 	}
 
 	sig, err := method.Sign(encbuf, key)

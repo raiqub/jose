@@ -18,12 +18,14 @@ package jwt
 
 import (
 	"encoding/json"
+
+	"github.com/raiqub/jose/jws"
 )
 
 type TokenHeader interface {
 	GetID() string
 	GetType() string
-	GetAlgorithm() string
+	GetAlgorithm() jws.Algorithm
 	GetJWKSetURL() string
 
 	json.Marshaler

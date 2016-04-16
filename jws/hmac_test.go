@@ -69,11 +69,16 @@ func TestHMACVerify(t *testing.T) {
 	for _, data := range hmacTestData {
 		lastDotIdx := strings.LastIndex(data.tokenString, ".")
 
-		method := jws.GetSigningMethod(data.alg)
+		method, err := jws.NewAlgorithm(data.alg).New()
+		if err != nil {
+			t.Errorf("[%v] Error while loading algorithm method: %v", err)
+			continue
+		}
+
 		input := strings.NewReader(data.tokenString[:lastDotIdx])
 		signature := strings.NewReader(data.tokenString[lastDotIdx+1:])
 
-		err := method.Verify(input, signature, hmacTestKey)
+		err = method.Verify(input, signature, hmacTestKey)
 		if data.valid && err != nil {
 			t.Errorf("[%v] Error while verifying key: %v", data.name, err)
 		}
@@ -85,31 +90,38 @@ func TestHMACVerify(t *testing.T) {
 
 func TestHMACSign(t *testing.T) {
 	for _, data := range hmacTestData {
-		if data.valid {
-			parts := strings.Split(data.tokenString, ".")
-			lastDotIdx := strings.LastIndex(data.tokenString, ".")
+		if !data.valid {
+			continue
+		}
 
-			method := jws.GetSigningMethod(data.alg)
-			input := strings.NewReader(data.tokenString[:lastDotIdx])
-			sig, err := method.Sign(input, hmacTestKey)
-			if err != nil {
-				t.Errorf("[%v] Error signing token: %v", data.name, err)
-			}
-			if sig != parts[2] {
-				t.Errorf("[%v] Incorrect signature.\nwas:\n%v\nexpecting:\n%v", data.name, sig, parts[2])
-			}
+		parts := strings.Split(data.tokenString, ".")
+		lastDotIdx := strings.LastIndex(data.tokenString, ".")
+
+		method, err := jws.NewAlgorithm(data.alg).New()
+		if err != nil {
+			t.Errorf("[%v] Error while loading algorithm method: %v", err)
+			continue
+		}
+
+		input := strings.NewReader(data.tokenString[:lastDotIdx])
+		sig, err := method.Sign(input, hmacTestKey)
+		if err != nil {
+			t.Errorf("[%v] Error signing token: %v", data.name, err)
+		}
+		if sig != parts[2] {
+			t.Errorf("[%v] Incorrect signature.\nwas:\n%v\nexpecting:\n%v", data.name, sig, parts[2])
 		}
 	}
 }
 
 func BenchmarkHS256Signing(b *testing.B) {
-	benchmarkSigning(b, jws.SigningMethodHS256, hmacTestKey)
+	benchmarkSigning(b, jws.HS256, hmacTestKey)
 }
 
 func BenchmarkHS384Signing(b *testing.B) {
-	benchmarkSigning(b, jws.SigningMethodHS384, hmacTestKey)
+	benchmarkSigning(b, jws.HS384, hmacTestKey)
 }
 
 func BenchmarkHS512Signing(b *testing.B) {
-	benchmarkSigning(b, jws.SigningMethodHS512, hmacTestKey)
+	benchmarkSigning(b, jws.HS512, hmacTestKey)
 }
