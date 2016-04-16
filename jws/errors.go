@@ -20,22 +20,31 @@ import (
 	"fmt"
 )
 
+// An ErrHashUnavailable represents an error when requested hash function is not
+// implemented to current binary.
 type ErrHashUnavailable string
 
+// Error returns string representation of current instance error.
 func (e ErrHashUnavailable) Error() string {
 	return fmt.Sprintf(
 		"The specified hash function is not available to current binary: %s",
 		string(e))
 }
 
+// An ErrInvalidKey represents an error when cryptografic key type is not
+// supported.
 type ErrInvalidKey int
 
+// Error returns string representation of current instance error.
 func (e ErrInvalidKey) Error() string {
 	return "The key provided is invalid"
 }
 
+// An ErrSignatureInvalid represents an error when token signature doesn't match
+// its content.
 type ErrSignatureInvalid int
 
+// Error returns string representation of current instance error.
 func (e ErrSignatureInvalid) Error() string {
 	return "The provided signature doesn't match input data"
 }

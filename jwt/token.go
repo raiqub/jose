@@ -45,7 +45,7 @@ func NewToken(header TokenHeader, payload TokenPayload) *Token {
 func NewTokenByAlg(method jws.SigningMethod) *Token {
 	header := &Header{
 		Type:      JWTHeaderType,
-		Algorithm: method.Alg(),
+		Algorithm: method.Algorithm(),
 	}
 
 	return &Token{

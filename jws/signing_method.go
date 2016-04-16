@@ -21,22 +21,25 @@ import "io"
 
 var signingMethods = map[string]func() SigningMethod{}
 
-// Implement SigningMethod to add new methods for signing or verifying tokens.
+// SigningMethod defines a template to methods for signing or verifying tokens.
 type SigningMethod interface {
+	// Verify whether a signature matches the input data.
 	Verify(input, signature io.Reader, key interface{}) error
+
+	// Sign generates a signature for input data.
 	Sign(input io.Reader, key interface{}) (string, error)
 
-	// Alg returns the algorithm code for this method (e.g. 'HS256').
-	Alg() string
+	// Algorithm returns the algorithm code for this method (e.g. 'HS256').
+	Algorithm() string
 }
 
-// Register the "alg" name and a factory function for signing method.
-// This is typically done during init() in the method's implementation
+// RegisterSigningMethod registers the "alg" name and a factory function for
+// signing method.
 func RegisterSigningMethod(alg string, f func() SigningMethod) {
 	signingMethods[alg] = f
 }
 
-// Get a signing method from an "alg" string
+// GetSigningMethod gets a signing method from an "alg" string
 func GetSigningMethod(alg string) (method SigningMethod) {
 	if methodF, ok := signingMethods[alg]; ok {
 		method = methodF()

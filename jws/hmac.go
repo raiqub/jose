@@ -20,52 +20,60 @@ package jws
 import (
 	"crypto"
 	"crypto/hmac"
-	_ "crypto/sha256"
-	_ "crypto/sha512"
 	"encoding/base64"
 	"io"
 	"io/ioutil"
 	"runtime"
+
+	// Imports to ensure hash functions registration.
+	_ "crypto/sha256"
+	_ "crypto/sha512"
 )
 
-// Implements the HMAC-SHA family of signing methods signing methods
+// SigningMethodHMAC implements the HMAC-SHA family of signing methods.
 type SigningMethodHMAC struct {
 	Name string
 	Hash crypto.Hash
 }
 
-// Specific instances for HS256 and company
 var (
+	// SigningMethodHS256 defines the signing method for HS256 algorithm.
 	SigningMethodHS256 *SigningMethodHMAC
+
+	// SigningMethodHS384 defines the signing method for HS384 algorithm.
 	SigningMethodHS384 *SigningMethodHMAC
+
+	// SigningMethodHS512 defines the signing method for HS512 algorithm.
 	SigningMethodHS512 *SigningMethodHMAC
 )
 
 func init() {
 	// HS256
 	SigningMethodHS256 = &SigningMethodHMAC{"HS256", crypto.SHA256}
-	RegisterSigningMethod(SigningMethodHS256.Alg(), func() SigningMethod {
+	RegisterSigningMethod(SigningMethodHS256.Name, func() SigningMethod {
 		return SigningMethodHS256
 	})
 
 	// HS384
 	SigningMethodHS384 = &SigningMethodHMAC{"HS384", crypto.SHA384}
-	RegisterSigningMethod(SigningMethodHS384.Alg(), func() SigningMethod {
+	RegisterSigningMethod(SigningMethodHS384.Name, func() SigningMethod {
 		return SigningMethodHS384
 	})
 
 	// HS512
 	SigningMethodHS512 = &SigningMethodHMAC{"HS512", crypto.SHA512}
-	RegisterSigningMethod(SigningMethodHS512.Alg(), func() SigningMethod {
+	RegisterSigningMethod(SigningMethodHS512.Name, func() SigningMethod {
 		return SigningMethodHS512
 	})
 }
 
-func (m *SigningMethodHMAC) Alg() string {
+// Algorithm returns the algorithm code for this method (e.g. 'HS256').
+func (m *SigningMethodHMAC) Algorithm() string {
 	return m.Name
 }
 
-// Verify the signature of HSXXX tokens.  Returns nil if the signature is valid.
+// Verify the signature of HMAC-SHA signed tokens.
+// Returns nil if the signature is valid.
 func (m *SigningMethodHMAC) Verify(
 	input, signature io.Reader,
 	key interface{},
@@ -86,7 +94,6 @@ func (m *SigningMethodHMAC) Verify(
 	var err error
 	if runtime.Version()[:5] == "go1.5" {
 		// Buggy base64 Decoder (Go 1.5)
-		// Test code: http://play.golang.org/p/O4NzYl9C6e
 		buf, err := ioutil.ReadAll(signature)
 		if err != nil {
 			return err
@@ -118,8 +125,7 @@ func (m *SigningMethodHMAC) Verify(
 	return nil
 }
 
-// Implements the Sign method from SigningMethod for this signing method.
-// Key must be []byte
+// Sign generates a signature for input data.
 func (m *SigningMethodHMAC) Sign(
 	input io.Reader,
 	key interface{},
