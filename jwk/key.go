@@ -146,7 +146,7 @@ func (k *Key) SetKey(key interface{}, alg jws.Algorithm) error {
 	case []byte:
 		err = k.setSymmetric(keyCast)
 	default:
-		return jws.ErrInvalidKey{key}
+		return jws.ErrInvalidKey{Value: key}
 	}
 	if err != nil {
 		return err

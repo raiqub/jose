@@ -71,7 +71,8 @@ func TestHMACVerify(t *testing.T) {
 
 		method, err := jws.NewAlgorithm(data.alg).New()
 		if err != nil {
-			t.Errorf("[%v] Error while loading algorithm method: %v", err)
+			t.Errorf("[%v] Error while loading algorithm method: %v",
+				data.name, err)
 			continue
 		}
 
@@ -99,7 +100,8 @@ func TestHMACSign(t *testing.T) {
 
 		method, err := jws.NewAlgorithm(data.alg).New()
 		if err != nil {
-			t.Errorf("[%v] Error while loading algorithm method: %v", err)
+			t.Errorf("[%v] Error while loading algorithm method: %v",
+				data.name, err)
 			continue
 		}
 
