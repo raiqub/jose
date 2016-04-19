@@ -67,24 +67,23 @@ var hmacTestKey, _ = ioutil.ReadFile("test/hmacTestKey")
 
 func TestHMACVerify(t *testing.T) {
 	for _, data := range hmacTestData {
-		lastDotIdx := strings.LastIndex(data.tokenString, ".")
-
 		method, err := jws.NewAlgorithm(data.alg).New()
 		if err != nil {
-			t.Errorf("[%v] Error while loading algorithm method: %v",
+			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
 			continue
 		}
 
+		lastDotIdx := strings.LastIndex(data.tokenString, ".")
 		input := data.tokenString[:lastDotIdx]
 		signature := data.tokenString[lastDotIdx+1:]
 
 		err = method.Verify(input, signature, hmacTestKey)
 		if data.valid && err != nil {
-			t.Errorf("[%v] Error while verifying key: %v", data.name, err)
+			t.Errorf("[%s] Error while verifying key: %v", data.name, err)
 		}
 		if !data.valid && err == nil {
-			t.Errorf("[%v] Invalid key passed validation", data.name)
+			t.Errorf("[%s] Invalid key passed validation", data.name)
 		}
 	}
 }
@@ -95,23 +94,25 @@ func TestHMACSign(t *testing.T) {
 			continue
 		}
 
-		parts := strings.Split(data.tokenString, ".")
-		lastDotIdx := strings.LastIndex(data.tokenString, ".")
-
 		method, err := jws.NewAlgorithm(data.alg).New()
 		if err != nil {
-			t.Errorf("[%v] Error while loading algorithm method: %v",
+			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
 			continue
 		}
 
+		lastDotIdx := strings.LastIndex(data.tokenString, ".")
 		input := data.tokenString[:lastDotIdx]
+		signature := data.tokenString[lastDotIdx+1:]
+
 		sig, err := method.Sign(input, hmacTestKey)
 		if err != nil {
-			t.Errorf("[%v] Error signing token: %v", data.name, err)
+			t.Errorf("[%s] Error signing token: %v", data.name, err)
 		}
-		if sig != parts[2] {
-			t.Errorf("[%v] Incorrect signature.\nwas:\n%v\nexpecting:\n%v", data.name, sig, parts[2])
+		if sig != signature {
+			t.Errorf(
+				"[%s] Incorrect signature.\nwas:\n%v\nexpecting:\n%v",
+				data.name, sig, signature)
 		}
 	}
 }

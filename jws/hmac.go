@@ -31,19 +31,19 @@ type hmacAlg struct {
 
 func init() {
 	RegisterAlgorithm(HS256, func() SigningMethod {
-		return hmacAlg{func() hash.Hash { return sha256.New() }}
+		return &hmacAlg{func() hash.Hash { return sha256.New() }}
 	})
 
 	RegisterAlgorithm(HS384, func() SigningMethod {
-		return hmacAlg{func() hash.Hash { return sha512.New384() }}
+		return &hmacAlg{func() hash.Hash { return sha512.New384() }}
 	})
 
 	RegisterAlgorithm(HS512, func() SigningMethod {
-		return hmacAlg{func() hash.Hash { return sha512.New() }}
+		return &hmacAlg{func() hash.Hash { return sha512.New() }}
 	})
 }
 
-func (m hmacAlg) Verify(input, signature string, key interface{}) error {
+func (m *hmacAlg) Verify(input, signature string, key interface{}) error {
 	// Verify the key is the right type
 	keyBytes, ok := key.([]byte)
 	if !ok {
@@ -51,7 +51,7 @@ func (m hmacAlg) Verify(input, signature string, key interface{}) error {
 	}
 
 	// Decode signature, for comparison
-	sig, err := base64.RawURLEncoding.DecodeString(signature)
+	decSig, err := base64.RawURLEncoding.DecodeString(signature)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (m hmacAlg) Verify(input, signature string, key interface{}) error {
 	if _, err := hasher.Write([]byte(input)); err != nil {
 		return err
 	}
-	if !hmac.Equal(sig, hasher.Sum(nil)) {
+	if !hmac.Equal(decSig, hasher.Sum(nil)) {
 		return ErrSignatureInvalid(0)
 	}
 
@@ -71,7 +71,7 @@ func (m hmacAlg) Verify(input, signature string, key interface{}) error {
 	return nil
 }
 
-func (m hmacAlg) Sign(input string, key interface{}) (string, error) {
+func (m *hmacAlg) Sign(input string, key interface{}) (string, error) {
 	// Verify the key is the right type
 	keyBytes, ok := key.([]byte)
 	if !ok {

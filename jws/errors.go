@@ -51,6 +51,24 @@ func (e ErrInvalidKey) Error() string {
 	return fmt.Sprintf("Unsupported key type: %T", e.Value)
 }
 
+// An ErrKeyMustBePEMEncoded represents an error when specified key is a
+// byte-array and is not PEM-encoded.
+type ErrKeyMustBePEMEncoded int
+
+// Error returns string representation of current instance error.
+func (e ErrKeyMustBePEMEncoded) Error() string {
+	return "The key should be PEM encoded"
+}
+
+// An ErrKeyMustBePKCS1Or8 represents an error when specified key type is not
+// PKCS#1 or PKCS#8.
+type ErrKeyMustBePKCS1Or8 int
+
+// Error returns string representation of current instance error.
+func (e ErrKeyMustBePKCS1Or8) Error() string {
+	return "The key should be PKCS#1 or PKCS#8 type"
+}
+
 // An ErrSignatureInvalid represents an error when token signature doesn't match
 // its content.
 type ErrSignatureInvalid int
