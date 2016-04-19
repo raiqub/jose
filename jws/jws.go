@@ -17,15 +17,13 @@
 
 package jws
 
-import "io"
-
 // SigningMethod defines a template to methods for signing or verifying tokens.
 type SigningMethod interface {
 	// Verify whether a signature matches the input data.
-	Verify(input, signature io.Reader, key interface{}) error
+	Verify(input, signature string, key interface{}) error
 
 	// Sign generates a signature for input data.
-	Sign(input io.Reader, key interface{}) (string, error)
+	Sign(input string, key interface{}) (string, error)
 }
 
 // An Algorithm represents a cryptographic algorithm to digitally sign or create

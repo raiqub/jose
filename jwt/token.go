@@ -148,11 +148,7 @@ func DecodeAndValidate(
 		return nil, err
 	}
 
-	if err := method.Verify(
-		strings.NewReader(token[:lastDotIdx]),
-		strings.NewReader(segs[2]),
-		key,
-	); err != nil {
+	if err := method.Verify(token[:lastDotIdx], segs[2], key); err != nil {
 		return nil, ErrInvalidSignature(token)
 	}
 
@@ -191,7 +187,7 @@ func (j *Token) EncodeAndSign(key interface{}) (string, error) {
 		return "", err
 	}
 
-	sig, err := method.Sign(encbuf, key)
+	sig, err := method.Sign(encbuf.String(), key)
 	if err != nil {
 		return "", err
 	}

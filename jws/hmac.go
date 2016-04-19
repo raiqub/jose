@@ -18,74 +18,49 @@
 package jws
 
 import (
-	"crypto"
 	"crypto/hmac"
+	"crypto/sha256"
+	"crypto/sha512"
 	"encoding/base64"
-	"io"
-	"io/ioutil"
-	"runtime"
-
-	// Imports to ensure hash functions registration.
-	_ "crypto/sha256"
-	_ "crypto/sha512"
+	"hash"
 )
 
 type hmacAlg struct {
-	crypto.Hash
+	hashFunc func() hash.Hash
 }
 
 func init() {
 	RegisterAlgorithm(HS256, func() SigningMethod {
-		return hmacAlg{crypto.SHA256}
+		return hmacAlg{func() hash.Hash { return sha256.New() }}
 	})
 
 	RegisterAlgorithm(HS384, func() SigningMethod {
-		return hmacAlg{crypto.SHA384}
+		return hmacAlg{func() hash.Hash { return sha512.New384() }}
 	})
 
 	RegisterAlgorithm(HS512, func() SigningMethod {
-		return hmacAlg{crypto.SHA512}
+		return hmacAlg{func() hash.Hash { return sha512.New() }}
 	})
 }
 
-func (m hmacAlg) Verify(input, signature io.Reader, key interface{}) error {
+func (m hmacAlg) Verify(input, signature string, key interface{}) error {
 	// Verify the key is the right type
 	keyBytes, ok := key.([]byte)
 	if !ok {
 		return ErrInvalidKey{key}
 	}
 
-	// Can we use the specified hashing method?
-	if !m.Hash.Available() {
-		return ErrHashUnavailable(m.Hash)
-	}
-
 	// Decode signature, for comparison
-	var sig []byte
-	var err error
-	if runtime.Version()[:5] == "go1.5" {
-		// Buggy base64 Decoder (Go 1.5)
-		buf, err := ioutil.ReadAll(signature)
-		if err != nil {
-			return err
-		}
-		sig, err = base64.RawURLEncoding.DecodeString(string(buf))
-		if err != nil {
-			return err
-		}
-	} else {
-		sig, err = ioutil.ReadAll(
-			base64.NewDecoder(base64.RawURLEncoding, signature))
-		if err != nil {
-			return err
-		}
+	sig, err := base64.RawURLEncoding.DecodeString(signature)
+	if err != nil {
+		return err
 	}
 
 	// This signing method is symmetric, so we validate the signature
 	// by reproducing the signature from the signing string and key, then
 	// comparing that against the provided signature.
-	hasher := hmac.New(m.Hash.New, keyBytes)
-	if _, err := io.Copy(hasher, input); err != nil {
+	hasher := hmac.New(m.hashFunc, keyBytes)
+	if _, err := hasher.Write([]byte(input)); err != nil {
 		return err
 	}
 	if !hmac.Equal(sig, hasher.Sum(nil)) {
@@ -96,21 +71,16 @@ func (m hmacAlg) Verify(input, signature io.Reader, key interface{}) error {
 	return nil
 }
 
-func (m hmacAlg) Sign(input io.Reader, key interface{}) (string, error) {
+func (m hmacAlg) Sign(input string, key interface{}) (string, error) {
 	// Verify the key is the right type
 	keyBytes, ok := key.([]byte)
 	if !ok {
 		return "", ErrInvalidKey{key}
 	}
 
-	// Can we use the specified hashing method?
-	if !m.Hash.Available() {
-		return "", ErrHashUnavailable(m.Hash)
-	}
-
 	// Generate a signature for input data
-	hasher := hmac.New(m.Hash.New, keyBytes)
-	if _, err := io.Copy(hasher, input); err != nil {
+	hasher := hmac.New(m.hashFunc, keyBytes)
+	if _, err := hasher.Write([]byte(input)); err != nil {
 		return "", err
 	}
 

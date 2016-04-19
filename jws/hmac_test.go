@@ -76,8 +76,8 @@ func TestHMACVerify(t *testing.T) {
 			continue
 		}
 
-		input := strings.NewReader(data.tokenString[:lastDotIdx])
-		signature := strings.NewReader(data.tokenString[lastDotIdx+1:])
+		input := data.tokenString[:lastDotIdx]
+		signature := data.tokenString[lastDotIdx+1:]
 
 		err = method.Verify(input, signature, hmacTestKey)
 		if data.valid && err != nil {
@@ -105,7 +105,7 @@ func TestHMACSign(t *testing.T) {
 			continue
 		}
 
-		input := strings.NewReader(data.tokenString[:lastDotIdx])
+		input := data.tokenString[:lastDotIdx]
 		sig, err := method.Sign(input, hmacTestKey)
 		if err != nil {
 			t.Errorf("[%v] Error signing token: %v", data.name, err)
