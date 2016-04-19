@@ -30,6 +30,14 @@ func (e ErrAlgUnavailable) Error() string {
 		"The specified algorithm method '%s' is unavailable", string(e))
 }
 
+// An ErrorGeneratingKey represents an error when generating raw key.
+type ErrorGeneratingKey string
+
+// Error returns string representation of current instance error.
+func (e ErrorGeneratingKey) Error() string {
+	return fmt.Sprintf("Error generating key: %s", string(e))
+}
+
 // An ErrHashUnavailable represents an error when requested hash function is not
 // implemented to current binary.
 type ErrHashUnavailable uint
@@ -76,4 +84,17 @@ type ErrSignatureInvalid int
 // Error returns string representation of current instance error.
 func (e ErrSignatureInvalid) Error() string {
 	return "The provided signature doesn't match input data"
+}
+
+// A ErrTooSmallKeySize represents an error when specified key size is less than
+// recommended by security experts.
+type ErrTooSmallKeySize struct {
+	Minimum int
+	Actual  int
+}
+
+// Error returns string representation of current instance error.
+func (e ErrTooSmallKeySize) Error() string {
+	return fmt.Sprintf("The key size must be at least %d bits, but got %d",
+		e.Minimum, e.Actual)
 }

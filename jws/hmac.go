@@ -19,10 +19,17 @@ package jws
 
 import (
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/base64"
 	"hash"
+)
+
+const (
+	// MinimumHMACKeySize defines the minimum recommended key size for symmetric
+	// keys.
+	MinimumHMACKeySize = 512
 )
 
 type hmacAlg struct {
@@ -85,4 +92,17 @@ func (m *hmacAlg) Sign(input string, key interface{}) (string, error) {
 	}
 
 	return base64.RawURLEncoding.EncodeToString(hasher.Sum(nil)), nil
+}
+
+func (m *hmacAlg) GenerateKey(bits int) (interface{}, error) {
+	if bits < MinimumHMACKeySize {
+		return nil, ErrTooSmallKeySize{MinimumHMACKeySize, bits}
+	}
+
+	buf := make([]byte, bits/8)
+	if _, err := rand.Read(buf); err != nil {
+		return nil, ErrorGeneratingKey(err.Error())
+	}
+
+	return buf, nil
 }

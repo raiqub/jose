@@ -24,6 +24,10 @@ type SigningMethod interface {
 
 	// Sign generates a signature for input data.
 	Sign(input string, key interface{}) (string, error)
+
+	// GenerateKey generates a key pair of the given bit size, or for symmetric
+	// algorithms generates a single key of the given bit size.
+	GenerateKey(bits int) (interface{}, error)
 }
 
 // An Algorithm represents a cryptographic algorithm to digitally sign or create

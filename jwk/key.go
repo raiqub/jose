@@ -176,3 +176,30 @@ func (k *Key) SetKey(key interface{}, alg jws.Algorithm) error {
 	k.Algorithm = alg.String()
 	return nil
 }
+
+// GenerateKey generates a key of the given algorithm, bit size and life
+// duration
+func GenerateKey(alg jws.Algorithm, bits, days int) (*Key, error) {
+	method, err := alg.New()
+	if err != nil {
+		return nil, err
+	}
+
+	key, err := method.GenerateKey(bits)
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	jwkKey := Key{
+		Usage:     "sig",
+		NotBefore: now,
+		ExpireAt:  now.Add(time.Hour * 24 * time.Duration(days)),
+	}
+
+	if err := jwkKey.SetKey(key, alg); err != nil {
+		return nil, err
+	}
+
+	return &jwkKey, nil
+}

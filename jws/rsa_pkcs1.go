@@ -27,6 +27,12 @@ import (
 	"hash"
 )
 
+const (
+	// MinimumRSAKeySize defines the minimum key size for RSA keys as
+	// recommended by security experts.
+	MinimumRSAKeySize = 2048
+)
+
 type rsaPKCS1Alg struct {
 	hashAlg  crypto.Hash
 	hashFunc func() hash.Hash
@@ -130,4 +136,17 @@ func (m *rsaPKCS1Alg) Sign(input string, key interface{}) (string, error) {
 	}
 
 	return base64.RawURLEncoding.EncodeToString(sigBytes), nil
+}
+
+func (m *rsaPKCS1Alg) GenerateKey(bits int) (interface{}, error) {
+	if bits < MinimumRSAKeySize {
+		return nil, ErrTooSmallKeySize{MinimumRSAKeySize, bits}
+	}
+
+	key, err := rsa.GenerateKey(rand.Reader, bits)
+	if err != nil {
+		return nil, ErrorGeneratingKey(err.Error())
+	}
+
+	return key, nil
 }
