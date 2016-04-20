@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package jws_test
+package jwa_test
 
 import (
 	"io/ioutil"
 	"strings"
 	"testing"
 
-	"github.com/raiqub/jose/jws"
+	"github.com/raiqub/jose/jwa"
 )
 
 var hmacTestData = []struct {
@@ -67,7 +67,7 @@ var hmacTestKey, _ = ioutil.ReadFile("test/hmacTestKey")
 
 func TestHMACVerify(t *testing.T) {
 	for _, data := range hmacTestData {
-		method, err := jws.NewAlgorithm(data.alg).New()
+		method, err := jwa.NewAlgorithm(data.alg).New()
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
@@ -94,7 +94,7 @@ func TestHMACSign(t *testing.T) {
 			continue
 		}
 
-		method, err := jws.NewAlgorithm(data.alg).New()
+		method, err := jwa.NewAlgorithm(data.alg).New()
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
@@ -118,13 +118,13 @@ func TestHMACSign(t *testing.T) {
 }
 
 func BenchmarkHS256Signing(b *testing.B) {
-	benchmarkSigning(b, jws.HS256, hmacTestKey)
+	benchmarkSigning(b, jwa.HS256, hmacTestKey)
 }
 
 func BenchmarkHS384Signing(b *testing.B) {
-	benchmarkSigning(b, jws.HS384, hmacTestKey)
+	benchmarkSigning(b, jwa.HS384, hmacTestKey)
 }
 
 func BenchmarkHS512Signing(b *testing.B) {
-	benchmarkSigning(b, jws.HS512, hmacTestKey)
+	benchmarkSigning(b, jwa.HS512, hmacTestKey)
 }

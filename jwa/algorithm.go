@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package jws
+package jwa
 
 // SigningMethod defines a template to methods for signing or verifying tokens.
 type SigningMethod interface {

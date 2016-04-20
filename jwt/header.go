@@ -18,7 +18,7 @@
 
 package jwt
 
-import "github.com/raiqub/jose/jws"
+import "github.com/raiqub/jose/jwa"
 
 const (
 	// JWTHeaderType defines the type name for JWT header.
@@ -53,8 +53,8 @@ func (h *Header) GetType() string {
 }
 
 // GetAlgorithm returns the algorithm used to sign current token.
-func (h *Header) GetAlgorithm() jws.Algorithm {
-	return jws.NewAlgorithm(h.Algorithm)
+func (h *Header) GetAlgorithm() jwa.Algorithm {
+	return jwa.NewAlgorithm(h.Algorithm)
 }
 
 // GetJWKSetURL returns a URL to retrieve the key used to sign current token.

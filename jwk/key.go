@@ -23,7 +23,7 @@ import (
 	"crypto/rsa"
 	"time"
 
-	"github.com/raiqub/jose/jws"
+	"github.com/raiqub/jose/jwa"
 )
 
 const (
@@ -128,9 +128,9 @@ func (k *Key) RemovePrivateFields() {
 }
 
 // SetKey parses specified raw key and sets current key to match it.
-func (k *Key) SetKey(key interface{}, alg jws.Algorithm) error {
+func (k *Key) SetKey(key interface{}, alg jwa.Algorithm) error {
 	if !alg.Available() {
-		return jws.ErrAlgUnavailable(alg)
+		return jwa.ErrAlgUnavailable(alg)
 	}
 
 	var err error
@@ -146,7 +146,7 @@ func (k *Key) SetKey(key interface{}, alg jws.Algorithm) error {
 	case []byte:
 		err = k.setSymmetric(keyCast)
 	default:
-		return jws.ErrInvalidKey{Value: key}
+		return jwa.ErrInvalidKey{Value: key}
 	}
 	if err != nil {
 		return err
@@ -179,7 +179,7 @@ func (k *Key) SetKey(key interface{}, alg jws.Algorithm) error {
 
 // GenerateKey generates a key of the given algorithm, bit size and life
 // duration
-func GenerateKey(alg jws.Algorithm, bits, days int) (*Key, error) {
+func GenerateKey(alg jwa.Algorithm, bits, days int) (*Key, error) {
 	method, err := alg.New()
 	if err != nil {
 		return nil, err

@@ -1,5 +1,4 @@
 /*
- * Copyright 2012 Dave Grijalva
  * Copyright 2016 Fabrício Godoy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,24 +14,5 @@
  * limitations under the License.
  */
 
-package jws_test
-
-import (
-	"testing"
-
-	"github.com/raiqub/jose/jws"
-	"github.com/raiqub/jose/jwt"
-)
-
-// Helper method for benchmarking various methods
-func benchmarkSigning(b *testing.B, alg jws.Algorithm, key interface{}) {
-	t := jwt.NewTokenByAlg(alg)
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			if _, err := t.EncodeAndSign(key); err != nil {
-				b.Fatal(err)
-			}
-		}
-	})
-
-}
+// Package jwa implements JSON Web Algorithms (JWA) specification.
+package jwa

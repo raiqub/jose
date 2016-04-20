@@ -1,4 +1,5 @@
 /*
+ * Copyright 2012 Dave Grijalva
  * Copyright 2016 Fabrício Godoy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,22 +15,24 @@
  * limitations under the License.
  */
 
-package jwt
+package jwa_test
 
 import (
-	"encoding/json"
+	"testing"
 
 	"github.com/raiqub/jose/jwa"
+	"github.com/raiqub/jose/jwt"
 )
 
-// A TokenHeader represents the header part of a token as defined by JWT
-// specification.
-type TokenHeader interface {
-	GetID() string
-	GetType() string
-	GetAlgorithm() jwa.Algorithm
-	GetJWKSetURL() string
+// Helper method for benchmarking various methods
+func benchmarkSigning(b *testing.B, alg jwa.Algorithm, key interface{}) {
+	t := jwt.NewTokenByAlg(alg)
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			if _, err := t.EncodeAndSign(key); err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
 
-	json.Marshaler
-	json.Unmarshaler
 }

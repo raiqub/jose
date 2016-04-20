@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package jws_test
+package jwa_test
 
 import (
 	"io/ioutil"
 	"strings"
 	"testing"
 
-	"github.com/raiqub/jose/jws"
+	"github.com/raiqub/jose/jwa"
 )
 
 var ecdsaTestData = []struct {
@@ -74,7 +74,7 @@ var ecdsaTestData = []struct {
 
 func TestECDSAVerify(t *testing.T) {
 	for _, data := range ecdsaTestData {
-		method, err := jws.NewAlgorithm(data.alg).New()
+		method, err := jwa.NewAlgorithm(data.alg).New()
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
@@ -102,7 +102,7 @@ func TestECDSASign(t *testing.T) {
 			continue
 		}
 
-		method, err := jws.NewAlgorithm(data.alg).New()
+		method, err := jwa.NewAlgorithm(data.alg).New()
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
@@ -128,7 +128,7 @@ func TestECDSASign(t *testing.T) {
 
 func TestECDSAVerifyWithPreParsedPublicKey(t *testing.T) {
 	key, _ := ioutil.ReadFile("test/ec256-public.pem")
-	parsedKey, err := jws.ParseECDSAFromPEM(key)
+	parsedKey, err := jwa.ParseECDSAFromPEM(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -137,7 +137,7 @@ func TestECDSAVerifyWithPreParsedPublicKey(t *testing.T) {
 	lastDotIdx := strings.LastIndex(testData.tokenString, ".")
 	input := testData.tokenString[:lastDotIdx]
 	signature := testData.tokenString[lastDotIdx+1:]
-	method, _ := jws.ES256.New()
+	method, _ := jwa.ES256.New()
 
 	err = method.Verify(input, signature, parsedKey)
 	if err != nil {
@@ -147,7 +147,7 @@ func TestECDSAVerifyWithPreParsedPublicKey(t *testing.T) {
 
 func TestECDSAWithPreParsedPrivateKey(t *testing.T) {
 	key, _ := ioutil.ReadFile("test/ec256-private.pem")
-	parsedKey, err := jws.ParseECDSAFromPEM(key)
+	parsedKey, err := jwa.ParseECDSAFromPEM(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -156,7 +156,7 @@ func TestECDSAWithPreParsedPrivateKey(t *testing.T) {
 	lastDotIdx := strings.LastIndex(testData.tokenString, ".")
 	input := testData.tokenString[:lastDotIdx]
 	signature := testData.tokenString[lastDotIdx+1:]
-	method, _ := jws.ES256.New()
+	method, _ := jwa.ES256.New()
 
 	sig, err := method.Sign(input, parsedKey)
 	if err != nil {
@@ -174,45 +174,45 @@ func TestECDSAKeyParsing(t *testing.T) {
 	pubKey, _ := ioutil.ReadFile("test/ec512-public.pem")
 	badKey := []byte("All your base are belong to key")
 
-	if _, e := jws.ParseECDSAFromPEM(key); e != nil {
+	if _, e := jwa.ParseECDSAFromPEM(key); e != nil {
 		t.Errorf("Failed to parse valid private key: %v", e)
 	}
 
-	if _, e := jws.ParseECDSAFromPEM(pubKey); e != nil {
+	if _, e := jwa.ParseECDSAFromPEM(pubKey); e != nil {
 		t.Errorf("Failed to parse valid public key: %v", e)
 	}
 
-	if k, e := jws.ParseECDSAFromPEM(badKey); e == nil {
+	if k, e := jwa.ParseECDSAFromPEM(badKey); e == nil {
 		t.Errorf("Parsed invalid key as valid private key: %v", k)
 	}
 }
 
 func BenchmarkES256Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/ec256-private.pem")
-	parsedKey, err := jws.ParseECDSAFromPEM(key)
+	parsedKey, err := jwa.ParseECDSAFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jws.ES256, parsedKey)
+	benchmarkSigning(b, jwa.ES256, parsedKey)
 }
 
 func BenchmarkES384Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/ec384-private.pem")
-	parsedKey, err := jws.ParseECDSAFromPEM(key)
+	parsedKey, err := jwa.ParseECDSAFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jws.ES384, parsedKey)
+	benchmarkSigning(b, jwa.ES384, parsedKey)
 }
 
 func BenchmarkES512Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/ec512-private.pem")
-	parsedKey, err := jws.ParseECDSAFromPEM(key)
+	parsedKey, err := jwa.ParseECDSAFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jws.ES512, parsedKey)
+	benchmarkSigning(b, jwa.ES512, parsedKey)
 }

@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/raiqub/jose/jwa"
 	"github.com/raiqub/jose/jwk"
 	"github.com/raiqub/jose/jwk/services"
-	"github.com/raiqub/jose/jws"
 	"github.com/raiqub/jose/jwt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/raiqub/eval.v0"
@@ -25,7 +25,7 @@ const (
 )
 
 func testCreateAndValidate(
-	alg jws.Algorithm,
+	alg jwa.Algorithm,
 	session *mgo.Session,
 	t *testing.T,
 ) {
@@ -95,14 +95,14 @@ func TestCreateAndValidate(t *testing.T) {
 	session := env.Session()
 
 	// ECDSA
-	testCreateAndValidate(jws.ES256, session, t)
-	testCreateAndValidate(jws.ES384, session, t)
-	testCreateAndValidate(jws.ES512, session, t)
+	testCreateAndValidate(jwa.ES256, session, t)
+	testCreateAndValidate(jwa.ES384, session, t)
+	testCreateAndValidate(jwa.ES512, session, t)
 
 	// RSA
-	testCreateAndValidate(jws.RS256, session, t)
-	testCreateAndValidate(jws.RS384, session, t)
-	testCreateAndValidate(jws.RS512, session, t)
+	testCreateAndValidate(jwa.RS256, session, t)
+	testCreateAndValidate(jwa.RS384, session, t)
+	testCreateAndValidate(jwa.RS512, session, t)
 }
 
 func createJWTPayload() *jwt.Payload {

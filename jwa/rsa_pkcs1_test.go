@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package jws_test
+package jwa_test
 
 import (
 	"io/ioutil"
 	"strings"
 	"testing"
 
-	"github.com/raiqub/jose/jws"
+	"github.com/raiqub/jose/jwa"
 )
 
 var rsaTestData = []struct {
@@ -66,7 +66,7 @@ func TestRSAVerify(t *testing.T) {
 	key, _ := ioutil.ReadFile("test/sample_key.pub")
 
 	for _, data := range rsaTestData {
-		method, err := jws.NewAlgorithm(data.alg).New()
+		method, err := jwa.NewAlgorithm(data.alg).New()
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
@@ -95,7 +95,7 @@ func TestRSASign(t *testing.T) {
 			continue
 		}
 
-		method, err := jws.NewAlgorithm(data.alg).New()
+		method, err := jwa.NewAlgorithm(data.alg).New()
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
@@ -120,7 +120,7 @@ func TestRSASign(t *testing.T) {
 
 func TestRSAVerifyWithPreParsedPublicKey(t *testing.T) {
 	key, _ := ioutil.ReadFile("test/sample_key.pub")
-	parsedKey, err := jws.ParseRSAFromPEM(key)
+	parsedKey, err := jwa.ParseRSAFromPEM(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +129,7 @@ func TestRSAVerifyWithPreParsedPublicKey(t *testing.T) {
 	lastDotIdx := strings.LastIndex(testData.tokenString, ".")
 	input := testData.tokenString[:lastDotIdx]
 	signature := testData.tokenString[lastDotIdx+1:]
-	method, _ := jws.RS256.New()
+	method, _ := jwa.RS256.New()
 
 	err = method.Verify(input, signature, parsedKey)
 	if err != nil {
@@ -139,7 +139,7 @@ func TestRSAVerifyWithPreParsedPublicKey(t *testing.T) {
 
 func TestRSAWithPreParsedPrivateKey(t *testing.T) {
 	key, _ := ioutil.ReadFile("test/sample_key")
-	parsedKey, err := jws.ParseRSAFromPEM(key)
+	parsedKey, err := jwa.ParseRSAFromPEM(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -148,7 +148,7 @@ func TestRSAWithPreParsedPrivateKey(t *testing.T) {
 	lastDotIdx := strings.LastIndex(testData.tokenString, ".")
 	input := testData.tokenString[:lastDotIdx]
 	signature := testData.tokenString[lastDotIdx+1:]
-	method, _ := jws.RS256.New()
+	method, _ := jwa.RS256.New()
 
 	sig, err := method.Sign(input, parsedKey)
 	if err != nil {
@@ -166,45 +166,45 @@ func TestRSAKeyParsing(t *testing.T) {
 	pubKey, _ := ioutil.ReadFile("test/sample_key.pub")
 	badKey := []byte("All your base are belong to key")
 
-	if _, e := jws.ParseRSAFromPEM(key); e != nil {
+	if _, e := jwa.ParseRSAFromPEM(key); e != nil {
 		t.Errorf("Failed to parse valid private key: %v", e)
 	}
 
-	if _, e := jws.ParseRSAFromPEM(pubKey); e != nil {
+	if _, e := jwa.ParseRSAFromPEM(pubKey); e != nil {
 		t.Errorf("Failed to parse valid public key: %v", e)
 	}
 
-	if k, e := jws.ParseRSAFromPEM(badKey); e == nil {
+	if k, e := jwa.ParseRSAFromPEM(badKey); e == nil {
 		t.Errorf("Parsed invalid key as valid private key: %v", k)
 	}
 }
 
 func BenchmarkRS256Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/sample_key")
-	parsedKey, err := jws.ParseRSAFromPEM(key)
+	parsedKey, err := jwa.ParseRSAFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jws.RS256, parsedKey)
+	benchmarkSigning(b, jwa.RS256, parsedKey)
 }
 
 func BenchmarkRS384Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/sample_key")
-	parsedKey, err := jws.ParseRSAFromPEM(key)
+	parsedKey, err := jwa.ParseRSAFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jws.RS384, parsedKey)
+	benchmarkSigning(b, jwa.RS384, parsedKey)
 }
 
 func BenchmarkRS512Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/sample_key")
-	parsedKey, err := jws.ParseRSAFromPEM(key)
+	parsedKey, err := jwa.ParseRSAFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jws.RS512, parsedKey)
+	benchmarkSigning(b, jwa.RS512, parsedKey)
 }

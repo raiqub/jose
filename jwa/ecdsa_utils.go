@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package jws
+package jwa
 
 import (
 	"crypto/x509"

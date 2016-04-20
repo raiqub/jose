@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/pquerna/ffjson/ffjson"
-	"github.com/raiqub/jose/jws"
+	"github.com/raiqub/jose/jwa"
 )
 
 // GetKeyFunc defines a function to retrieve a key for specified token.
@@ -45,7 +45,7 @@ func NewToken(header TokenHeader, payload TokenPayload) *Token {
 
 // NewTokenByAlg creates a new instance of Token type using default header and
 // payload types.
-func NewTokenByAlg(alg jws.Algorithm) *Token {
+func NewTokenByAlg(alg jwa.Algorithm) *Token {
 	header := &Header{
 		Type:      JWTHeaderType,
 		Algorithm: alg.String(),
