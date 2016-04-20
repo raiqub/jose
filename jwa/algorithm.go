@@ -17,8 +17,9 @@
 
 package jwa
 
-// SigningMethod defines a template to methods for signing or verifying tokens.
-type SigningMethod interface {
+// Algorithm represents a code for cryptographic algorithm to digitally
+// sign or create a MAC of the input data.
+type Algorithm interface {
 	// Verify whether a signature matches the input data.
 	Verify(input, signature string, key interface{}) error
 
@@ -77,11 +78,11 @@ const (
 	PS512 = "PS512"
 )
 
-var algorithms = map[string]func() SigningMethod{}
+var algorithms = map[string]func() Algorithm{}
 
-// New returns a new Algorithm for signing or verifying tokens.
-// Returns ErrAlgUnavailable when the algorithm is not implemented.
-func New(alg string) (SigningMethod, error) {
+// New returns a new Algorithm for signing or verifying tokens and generating
+// keys. Returns ErrAlgUnavailable when the algorithm is not implemented.
+func New(alg string) (Algorithm, error) {
 	if m, ok := algorithms[alg]; ok {
 		return m(), nil
 	}
@@ -99,6 +100,6 @@ func Available(alg string) bool {
 // RegisterAlgorithm registers a function that returns a new instance of the
 // given algorithm. This is intended to be called from the init function in
 // packages that implement algorithm methods.
-func RegisterAlgorithm(alg string, f func() SigningMethod) {
+func RegisterAlgorithm(alg string, f func() Algorithm) {
 	algorithms[alg] = f
 }

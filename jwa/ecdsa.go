@@ -40,19 +40,19 @@ type ecdsaAlg struct {
 }
 
 func init() {
-	RegisterAlgorithm(ES256, func() SigningMethod {
+	RegisterAlgorithm(ES256, func() Algorithm {
 		return &ecdsaAlg{
 			func() hash.Hash { return sha256.New() },
 			32, 256,
 		}
 	})
-	RegisterAlgorithm(ES384, func() SigningMethod {
+	RegisterAlgorithm(ES384, func() Algorithm {
 		return &ecdsaAlg{
 			func() hash.Hash { return sha512.New384() },
 			48, 384,
 		}
 	})
-	RegisterAlgorithm(ES512, func() SigningMethod {
+	RegisterAlgorithm(ES512, func() Algorithm {
 		return &ecdsaAlg{
 			func() hash.Hash { return sha512.New() },
 			66, 521,

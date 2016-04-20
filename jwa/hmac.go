@@ -37,15 +37,15 @@ type hmacAlg struct {
 }
 
 func init() {
-	RegisterAlgorithm(HS256, func() SigningMethod {
+	RegisterAlgorithm(HS256, func() Algorithm {
 		return &hmacAlg{func() hash.Hash { return sha256.New() }}
 	})
 
-	RegisterAlgorithm(HS384, func() SigningMethod {
+	RegisterAlgorithm(HS384, func() Algorithm {
 		return &hmacAlg{func() hash.Hash { return sha512.New384() }}
 	})
 
-	RegisterAlgorithm(HS512, func() SigningMethod {
+	RegisterAlgorithm(HS512, func() Algorithm {
 		return &hmacAlg{func() hash.Hash { return sha512.New() }}
 	})
 }

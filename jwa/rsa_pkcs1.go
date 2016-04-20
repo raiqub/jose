@@ -39,19 +39,19 @@ type rsaPKCS1Alg struct {
 }
 
 func init() {
-	RegisterAlgorithm(RS256, func() SigningMethod {
+	RegisterAlgorithm(RS256, func() Algorithm {
 		return &rsaPKCS1Alg{
 			crypto.SHA256,
 			func() hash.Hash { return sha256.New() },
 		}
 	})
-	RegisterAlgorithm(RS384, func() SigningMethod {
+	RegisterAlgorithm(RS384, func() Algorithm {
 		return &rsaPKCS1Alg{
 			crypto.SHA384,
 			func() hash.Hash { return sha512.New384() },
 		}
 	})
-	RegisterAlgorithm(RS512, func() SigningMethod {
+	RegisterAlgorithm(RS512, func() Algorithm {
 		return &rsaPKCS1Alg{
 			crypto.SHA512,
 			func() hash.Hash { return sha512.New() },
