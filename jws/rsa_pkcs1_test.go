@@ -118,7 +118,7 @@ func TestRSASign(t *testing.T) {
 	}
 }
 
-func TestRSAVerifyWithPreParsedPrivateKey(t *testing.T) {
+func TestRSAVerifyWithPreParsedPublicKey(t *testing.T) {
 	key, _ := ioutil.ReadFile("test/sample_key.pub")
 	parsedKey, err := jws.ParseRSAFromPEM(key)
 	if err != nil {

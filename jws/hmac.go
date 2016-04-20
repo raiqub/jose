@@ -29,7 +29,7 @@ import (
 const (
 	// MinimumHMACKeySize defines the minimum recommended key size for symmetric
 	// keys.
-	MinimumHMACKeySize = 512
+	MinimumHMACKeySize = 128
 )
 
 type hmacAlg struct {

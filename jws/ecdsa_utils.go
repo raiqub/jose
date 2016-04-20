@@ -23,12 +23,9 @@ import (
 )
 
 var (
-	rsaParsers = []func([]byte) (interface{}, error){
+	ecdsaParsers = []func([]byte) (interface{}, error){
 		func(key []byte) (interface{}, error) {
-			return x509.ParsePKCS1PrivateKey(key)
-		},
-		func(key []byte) (interface{}, error) {
-			return x509.ParsePKCS8PrivateKey(key)
+			return x509.ParseECPrivateKey(key)
 		},
 		func(key []byte) (interface{}, error) {
 			return x509.ParsePKIXPublicKey(key)
@@ -44,8 +41,8 @@ var (
 	}
 )
 
-// ParseRSAFromPEM decodes PEM encoded PKCS1 or PKCS8.
-func ParseRSAFromPEM(key []byte) (interface{}, error) {
+// ParseECDSAFromPEM decodes PEM encoded ECDSA.
+func ParseECDSAFromPEM(key []byte) (interface{}, error) {
 	var err error
 
 	// Parse PEM block
@@ -55,7 +52,7 @@ func ParseRSAFromPEM(key []byte) (interface{}, error) {
 	}
 
 	var parsedKey interface{}
-	for _, v := range rsaParsers {
+	for _, v := range ecdsaParsers {
 		if parsedKey, err = v(block.Bytes); err == nil {
 			return parsedKey, nil
 		}

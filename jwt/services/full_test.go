@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/raiqub/jose/jwk"
-	"github.com/raiqub/jose/jwk/keygen"
 	"github.com/raiqub/jose/jwk/services"
 	"github.com/raiqub/jose/jws"
 	"github.com/raiqub/jose/jwt"
@@ -25,73 +24,12 @@ const (
 	keySize    = 2048
 )
 
-/*func benchmarkTokenCreation(kid string, b *testing.B) {
-	config, err := createJWTConfig()
-	if err != nil {
-		b.Fatal(err)
-	}
-	config.SignKeyId = kid
-
-	provider := NewSigner(*config)
-	token, err := provider.Create(createJWTContext())
-	if err != nil {
-		b.Fatalf("Error creating token: %v", err)
-	}
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		_, err := provider.Validate(audience, token)
-		if err != nil {
-			b.Fatalf("Error validating token: %v", err)
-		}
-	}
-
-	b.StopTimer()
-}
-
-func BenchmarkECTokenCreation(b *testing.B) {
-	benchmarkTokenCreation(eckid, b)
-}
-
-func BenchmarkRSATokenCreation(b *testing.B) {
-	benchmarkTokenCreation(rsakid, b)
-}
-
-func benchmarkTokenValidation(kid string, b *testing.B) {
-	config, err := createJWTConfig()
-	if err != nil {
-		b.Fatal(err)
-	}
-	config.SignKeyId = kid
-
-	provider := NewSigner(*config)
-	context := createJWTContext()
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		_, err := provider.Create(context)
-		if err != nil {
-			b.Fatalf("Error creating token: %v", err)
-		}
-	}
-
-	b.StopTimer()
-}
-
-func BenchmarkTokenECValidation(b *testing.B) {
-	benchmarkTokenValidation(eckid, b)
-}
-
-func BenchmarkTokenRSAValidation(b *testing.B) {
-	benchmarkTokenValidation(rsakid, b)
-}*/
-
 func testCreateAndValidate(
-	alg string,
+	alg jws.Algorithm,
 	session *mgo.Session,
 	t *testing.T,
 ) {
-	key, err := keygen.New(jws.NewAlgorithm(alg), keySize, 1)
+	key, err := jwk.GenerateKey(alg, keySize, 1)
 	if err != nil {
 		t.Fatalf("Error generating new key: %v", err)
 	}
@@ -157,14 +95,14 @@ func TestCreateAndValidate(t *testing.T) {
 	session := env.Session()
 
 	// ECDSA
-	testCreateAndValidate("ES256", session, t)
-	testCreateAndValidate("ES384", session, t)
-	testCreateAndValidate("ES512", session, t)
+	testCreateAndValidate(jws.ES256, session, t)
+	testCreateAndValidate(jws.ES384, session, t)
+	testCreateAndValidate(jws.ES512, session, t)
 
 	// RSA
-	testCreateAndValidate("RS256", session, t)
-	testCreateAndValidate("RS384", session, t)
-	testCreateAndValidate("RS512", session, t)
+	testCreateAndValidate(jws.RS256, session, t)
+	testCreateAndValidate(jws.RS384, session, t)
+	testCreateAndValidate(jws.RS512, session, t)
 }
 
 func createJWTPayload() *jwt.Payload {
@@ -179,3 +117,64 @@ func createJWTPayload() *jwt.Payload {
 		},
 	}
 }
+
+/*func benchmarkTokenCreation(kid string, b *testing.B) {
+	config, err := createJWTConfig()
+	if err != nil {
+		b.Fatal(err)
+	}
+	config.SignKeyId = kid
+
+	provider := NewSigner(*config)
+	token, err := provider.Create(createJWTContext())
+	if err != nil {
+		b.Fatalf("Error creating token: %v", err)
+	}
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		_, err := provider.Validate(audience, token)
+		if err != nil {
+			b.Fatalf("Error validating token: %v", err)
+		}
+	}
+
+	b.StopTimer()
+}
+
+func BenchmarkECTokenCreation(b *testing.B) {
+	benchmarkTokenCreation(eckid, b)
+}
+
+func BenchmarkRSATokenCreation(b *testing.B) {
+	benchmarkTokenCreation(rsakid, b)
+}
+
+func benchmarkTokenValidation(kid string, b *testing.B) {
+	config, err := createJWTConfig()
+	if err != nil {
+		b.Fatal(err)
+	}
+	config.SignKeyId = kid
+
+	provider := NewSigner(*config)
+	context := createJWTContext()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		_, err := provider.Create(context)
+		if err != nil {
+			b.Fatalf("Error creating token: %v", err)
+		}
+	}
+
+	b.StopTimer()
+}
+
+func BenchmarkTokenECValidation(b *testing.B) {
+	benchmarkTokenValidation(eckid, b)
+}
+
+func BenchmarkTokenRSAValidation(b *testing.B) {
+	benchmarkTokenValidation(rsakid, b)
+}*/

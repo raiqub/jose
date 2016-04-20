@@ -1,0 +1,9 @@
+BenchmarkES256Signing-4	    3000	    375121 ns/op	    9473 B/op	      96 allocs/op
+BenchmarkES384Signing-4	     500	   3603137 ns/op	 2591281 B/op	   21799 allocs/op
+BenchmarkES512Signing-4	     200	   6529272 ns/op	 4865592 B/op	   34419 allocs/op
+BenchmarkHS256Signing-4	  300000	      4286 ns/op	    4184 B/op	      28 allocs/op
+BenchmarkHS384Signing-4	  300000	      4721 ns/op	    4520 B/op	      28 allocs/op
+BenchmarkHS512Signing-4	  300000	      6182 ns/op	    4633 B/op	      28 allocs/op
+BenchmarkRS256Signing-4	    1000	   2209560 ns/op	  619943 B/op	    4858 allocs/op
+BenchmarkRS384Signing-4	     500	   2438604 ns/op	  620583 B/op	    4861 allocs/op
+BenchmarkRS512Signing-4	    1000	   2341258 ns/op	  620601 B/op	    4861 allocs/op
