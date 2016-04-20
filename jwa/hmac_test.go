@@ -67,7 +67,7 @@ var hmacTestKey, _ = ioutil.ReadFile("test/hmacTestKey")
 
 func TestHMACVerify(t *testing.T) {
 	for _, data := range hmacTestData {
-		method, err := jwa.NewAlgorithm(data.alg).New()
+		method, err := jwa.New(data.alg)
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
@@ -94,7 +94,7 @@ func TestHMACSign(t *testing.T) {
 			continue
 		}
 
-		method, err := jwa.NewAlgorithm(data.alg).New()
+		method, err := jwa.New(data.alg)
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)

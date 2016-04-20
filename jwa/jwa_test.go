@@ -20,12 +20,11 @@ package jwa_test
 import (
 	"testing"
 
-	"github.com/raiqub/jose/jwa"
 	"github.com/raiqub/jose/jwt"
 )
 
 // Helper method for benchmarking various methods
-func benchmarkSigning(b *testing.B, alg jwa.Algorithm, key interface{}) {
+func benchmarkSigning(b *testing.B, alg string, key interface{}) {
 	t := jwt.NewTokenByAlg(alg)
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {

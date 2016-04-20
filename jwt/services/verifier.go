@@ -57,7 +57,7 @@ func (v *Verifier) Verify(rawtoken string) (*jwt.Token, error) {
 			if key, ok = v.keys[token.Header.GetID()]; !ok {
 				return nil, ErrInvalidKeyID(token.Header.GetID())
 			}
-			if token.Header.GetAlgorithm().String() != key.JWK.Algorithm {
+			if token.Header.GetAlgorithm() != key.JWK.Algorithm {
 				return nil, ErrUnexpectedAlg(token.Header.GetAlgorithm())
 			}
 

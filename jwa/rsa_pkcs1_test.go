@@ -66,7 +66,7 @@ func TestRSAVerify(t *testing.T) {
 	key, _ := ioutil.ReadFile("test/sample_key.pub")
 
 	for _, data := range rsaTestData {
-		method, err := jwa.NewAlgorithm(data.alg).New()
+		method, err := jwa.New(data.alg)
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
@@ -95,7 +95,7 @@ func TestRSASign(t *testing.T) {
 			continue
 		}
 
-		method, err := jwa.NewAlgorithm(data.alg).New()
+		method, err := jwa.New(data.alg)
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
@@ -129,7 +129,7 @@ func TestRSAVerifyWithPreParsedPublicKey(t *testing.T) {
 	lastDotIdx := strings.LastIndex(testData.tokenString, ".")
 	input := testData.tokenString[:lastDotIdx]
 	signature := testData.tokenString[lastDotIdx+1:]
-	method, _ := jwa.RS256.New()
+	method, _ := jwa.New(jwa.RS256)
 
 	err = method.Verify(input, signature, parsedKey)
 	if err != nil {
@@ -148,7 +148,7 @@ func TestRSAWithPreParsedPrivateKey(t *testing.T) {
 	lastDotIdx := strings.LastIndex(testData.tokenString, ".")
 	input := testData.tokenString[:lastDotIdx]
 	signature := testData.tokenString[lastDotIdx+1:]
-	method, _ := jwa.RS256.New()
+	method, _ := jwa.New(jwa.RS256)
 
 	sig, err := method.Sign(input, parsedKey)
 	if err != nil {

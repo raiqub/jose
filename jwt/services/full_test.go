@@ -25,7 +25,7 @@ const (
 )
 
 func testCreateAndValidate(
-	alg jwa.Algorithm,
+	alg string,
 	session *mgo.Session,
 	t *testing.T,
 ) {

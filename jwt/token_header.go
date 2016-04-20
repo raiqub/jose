@@ -16,18 +16,14 @@
 
 package jwt
 
-import (
-	"encoding/json"
-
-	"github.com/raiqub/jose/jwa"
-)
+import "encoding/json"
 
 // A TokenHeader represents the header part of a token as defined by JWT
 // specification.
 type TokenHeader interface {
 	GetID() string
 	GetType() string
-	GetAlgorithm() jwa.Algorithm
+	GetAlgorithm() string
 	GetJWKSetURL() string
 
 	json.Marshaler

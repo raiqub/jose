@@ -30,85 +30,75 @@ type SigningMethod interface {
 	GenerateKey(bits int) (interface{}, error)
 }
 
-// An Algorithm represents a cryptographic algorithm to digitally sign or create
-// a MAC of the token header and payload.
-type Algorithm string
+// An AlgorithmCode represents a code for cryptographic algorithm to digitally
+// sign or create a MAC of the token header and payload.
+//type AlgorithmCode string
 
 // List of available algorithms as defined by JWA specification.
 // Ref: https://tools.ietf.org/html/rfc7518#section-3.1.
 const (
 	// HS256 defines an HMAC algorithm using SHA-256.
-	HS256 = Algorithm("HS256")
+	HS256 = "HS256"
 
 	// HS384 defines an HMAC algorithm using SHA-384.
-	HS384 = Algorithm("HS384")
+	HS384 = "HS384"
 
 	// HS384 defines an HMAC algorithm using SHA-512.
-	HS512 = Algorithm("HS512")
+	HS512 = "HS512"
 
 	// RS256 defines an RSASSA-PKCS1-v1_5 algorithm using SHA-256.
-	RS256 = Algorithm("RS256")
+	RS256 = "RS256"
 
 	// RS384 defines an RSASSA-PKCS1-v1_5 algorithm using SHA-384.
-	RS384 = Algorithm("RS384")
+	RS384 = "RS384"
 
 	// RS512 defines an RSASSA-PKCS1-v1_5 algorithm using SHA-512.
-	RS512 = Algorithm("RS512")
+	RS512 = "RS512"
 
 	// ES256 defines an ECDSA algorithm using P-256 and SHA-256.
-	ES256 = Algorithm("ES256")
+	ES256 = "ES256"
 
 	// ES384 defines an ECDSA algorithm using P-384 and SHA-384.
-	ES384 = Algorithm("ES384")
+	ES384 = "ES384"
 
 	// ES384 defines an ECDSA algorithm using P-521 and SHA-512.
-	ES512 = Algorithm("ES512")
+	ES512 = "ES512"
 
 	// ES256 defines an RSASSA-PSS algorithm using SHA-256 and MGF1 with
 	// SHA-256.
-	PS256 = Algorithm("PS256")
+	PS256 = "PS256"
 
 	// ES384 defines an RSASSA-PSS algorithm using SHA-384 and MGF1 with
 	// SHA-384.
-	PS384 = Algorithm("PS384")
+	PS384 = "PS384"
 
 	// ES384 defines an RSASSA-PSS algorithm using SHA-512 and MGF1 with
 	// SHA-512.
-	PS512 = Algorithm("PS512")
+	PS512 = "PS512"
 )
 
-var methods = map[string]func() SigningMethod{}
+var algorithms = map[string]func() SigningMethod{}
 
-// NewAlgorithm creates an Algorithm instance from algorithm name.
-func NewAlgorithm(alg string) Algorithm {
-	return Algorithm(alg)
-}
-
-// New returns a new SigningMethod for signing or verifying tokens.
-// Returns ErrAlgUnavailable when the algorithm method is not implemented.
-func (a Algorithm) New() (SigningMethod, error) {
-	if m, ok := methods[string(a)]; ok {
+// New returns a new Algorithm for signing or verifying tokens.
+// Returns ErrAlgUnavailable when the algorithm is not implemented.
+func New(alg string) (SigningMethod, error) {
+	if m, ok := algorithms[alg]; ok {
 		return m(), nil
 	}
 
-	return nil, ErrAlgUnavailable(string(a))
+	return nil, ErrAlgUnavailable(alg)
 }
 
-// Available reports whether an implementation to current Algorithm is
+// Available reports whether an implementation of specified algorithm code is
 // available.
-func (a Algorithm) Available() bool {
-	_, ok := methods[string(a)]
+func Available(alg string) bool {
+	_, ok := algorithms[alg]
 	return ok
-}
-
-// String returns the string representation of current algorithm.
-func (a Algorithm) String() string {
-	return string(a)
 }
 
 // RegisterAlgorithm registers a function that returns a new instance of the
 // given algorithm. This is intended to be called from the init function in
 // packages that implement algorithm methods.
-func RegisterAlgorithm(alg Algorithm, f func() SigningMethod) {
-	methods[string(alg)] = f
+func RegisterAlgorithm(alg string, f func() SigningMethod) {
+	algorithms[alg] = f
 }

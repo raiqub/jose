@@ -128,8 +128,8 @@ func (k *Key) RemovePrivateFields() {
 }
 
 // SetKey parses specified raw key and sets current key to match it.
-func (k *Key) SetKey(key interface{}, alg jwa.Algorithm) error {
-	if !alg.Available() {
+func (k *Key) SetKey(key interface{}, alg string) error {
+	if !jwa.Available(alg) {
 		return jwa.ErrAlgUnavailable(alg)
 	}
 
@@ -155,15 +155,15 @@ func (k *Key) SetKey(key interface{}, alg jwa.Algorithm) error {
 	switch k.Type {
 	case KeyTypeECDSA:
 		if alg[:2] != "ES" {
-			return ErrIncompatibleAlg{k.Type, alg.String()}
+			return ErrIncompatibleAlg{k.Type, alg}
 		}
 	case KeyTypeRSA:
 		if alg[:2] != "RS" && alg[:2] != "PS" {
-			return ErrIncompatibleAlg{k.Type, alg.String()}
+			return ErrIncompatibleAlg{k.Type, alg}
 		}
 	case KeyTypeSymmetric:
 		if alg[:2] != "HS" {
-			return ErrIncompatibleAlg{k.Type, alg.String()}
+			return ErrIncompatibleAlg{k.Type, alg}
 		}
 	}
 
@@ -173,14 +173,14 @@ func (k *Key) SetKey(key interface{}, alg jwa.Algorithm) error {
 		}
 	}
 
-	k.Algorithm = alg.String()
+	k.Algorithm = alg
 	return nil
 }
 
 // GenerateKey generates a key of the given algorithm, bit size and life
 // duration
-func GenerateKey(alg jwa.Algorithm, bits, days int) (*Key, error) {
-	method, err := alg.New()
+func GenerateKey(alg string, bits, days int) (*Key, error) {
+	method, err := jwa.New(alg)
 	if err != nil {
 		return nil, err
 	}

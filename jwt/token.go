@@ -45,10 +45,10 @@ func NewToken(header TokenHeader, payload TokenPayload) *Token {
 
 // NewTokenByAlg creates a new instance of Token type using default header and
 // payload types.
-func NewTokenByAlg(alg jwa.Algorithm) *Token {
+func NewTokenByAlg(alg string) *Token {
 	header := &Header{
 		Type:      JWTHeaderType,
-		Algorithm: alg.String(),
+		Algorithm: alg,
 	}
 
 	return &Token{
@@ -135,7 +135,7 @@ func DecodeAndValidate(
 		return nil, ErrInvalidToken(token)
 	}
 
-	method, err := j.Header.GetAlgorithm().New()
+	method, err := jwa.New(j.Header.GetAlgorithm())
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func (j *Token) encode() *bytes.Buffer {
 // signature.
 func (j *Token) EncodeAndSign(key interface{}) (string, error) {
 	encbuf := j.encode()
-	method, err := j.Header.GetAlgorithm().New()
+	method, err := jwa.New(j.Header.GetAlgorithm())
 	if err != nil {
 		return "", err
 	}

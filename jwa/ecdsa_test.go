@@ -74,7 +74,7 @@ var ecdsaTestData = []struct {
 
 func TestECDSAVerify(t *testing.T) {
 	for _, data := range ecdsaTestData {
-		method, err := jwa.NewAlgorithm(data.alg).New()
+		method, err := jwa.New(data.alg)
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
@@ -102,7 +102,7 @@ func TestECDSASign(t *testing.T) {
 			continue
 		}
 
-		method, err := jwa.NewAlgorithm(data.alg).New()
+		method, err := jwa.New(data.alg)
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
 				data.name, err)
@@ -137,7 +137,7 @@ func TestECDSAVerifyWithPreParsedPublicKey(t *testing.T) {
 	lastDotIdx := strings.LastIndex(testData.tokenString, ".")
 	input := testData.tokenString[:lastDotIdx]
 	signature := testData.tokenString[lastDotIdx+1:]
-	method, _ := jwa.ES256.New()
+	method, _ := jwa.New(jwa.ES256)
 
 	err = method.Verify(input, signature, parsedKey)
 	if err != nil {
@@ -156,7 +156,7 @@ func TestECDSAWithPreParsedPrivateKey(t *testing.T) {
 	lastDotIdx := strings.LastIndex(testData.tokenString, ".")
 	input := testData.tokenString[:lastDotIdx]
 	signature := testData.tokenString[lastDotIdx+1:]
-	method, _ := jwa.ES256.New()
+	method, _ := jwa.New(jwa.ES256)
 
 	sig, err := method.Sign(input, parsedKey)
 	if err != nil {
