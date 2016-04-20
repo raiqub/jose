@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package jwa_test
+package hmac_test
 
 import (
 	"io/ioutil"
@@ -23,6 +23,9 @@ import (
 	"testing"
 
 	"github.com/raiqub/jose/jwa"
+	"github.com/raiqub/jose/jwa/jwatest"
+
+	_ "github.com/raiqub/jose/jwa/hmac"
 )
 
 var hmacTestData = []struct {
@@ -118,13 +121,13 @@ func TestHMACSign(t *testing.T) {
 }
 
 func BenchmarkHS256Signing(b *testing.B) {
-	benchmarkSigning(b, jwa.HS256, hmacTestKey)
+	jwatest.BenchmarkSigning(b, jwa.HS256, hmacTestKey)
 }
 
 func BenchmarkHS384Signing(b *testing.B) {
-	benchmarkSigning(b, jwa.HS384, hmacTestKey)
+	jwatest.BenchmarkSigning(b, jwa.HS384, hmacTestKey)
 }
 
 func BenchmarkHS512Signing(b *testing.B) {
-	benchmarkSigning(b, jwa.HS512, hmacTestKey)
+	jwatest.BenchmarkSigning(b, jwa.HS512, hmacTestKey)
 }

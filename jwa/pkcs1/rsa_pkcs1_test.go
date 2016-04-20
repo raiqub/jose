@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package jwa_test
+package pkcs1_test
 
 import (
 	"io/ioutil"
@@ -23,6 +23,8 @@ import (
 	"testing"
 
 	"github.com/raiqub/jose/jwa"
+	"github.com/raiqub/jose/jwa/jwatest"
+	"github.com/raiqub/jose/jwa/pkcs1"
 )
 
 var rsaTestData = []struct {
@@ -120,7 +122,7 @@ func TestRSASign(t *testing.T) {
 
 func TestRSAVerifyWithPreParsedPublicKey(t *testing.T) {
 	key, _ := ioutil.ReadFile("test/sample_key.pub")
-	parsedKey, err := jwa.ParseRSAFromPEM(key)
+	parsedKey, err := pkcs1.ParseFromPEM(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -139,7 +141,7 @@ func TestRSAVerifyWithPreParsedPublicKey(t *testing.T) {
 
 func TestRSAWithPreParsedPrivateKey(t *testing.T) {
 	key, _ := ioutil.ReadFile("test/sample_key")
-	parsedKey, err := jwa.ParseRSAFromPEM(key)
+	parsedKey, err := pkcs1.ParseFromPEM(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,45 +168,45 @@ func TestRSAKeyParsing(t *testing.T) {
 	pubKey, _ := ioutil.ReadFile("test/sample_key.pub")
 	badKey := []byte("All your base are belong to key")
 
-	if _, e := jwa.ParseRSAFromPEM(key); e != nil {
+	if _, e := pkcs1.ParseFromPEM(key); e != nil {
 		t.Errorf("Failed to parse valid private key: %v", e)
 	}
 
-	if _, e := jwa.ParseRSAFromPEM(pubKey); e != nil {
+	if _, e := pkcs1.ParseFromPEM(pubKey); e != nil {
 		t.Errorf("Failed to parse valid public key: %v", e)
 	}
 
-	if k, e := jwa.ParseRSAFromPEM(badKey); e == nil {
+	if k, e := pkcs1.ParseFromPEM(badKey); e == nil {
 		t.Errorf("Parsed invalid key as valid private key: %v", k)
 	}
 }
 
 func BenchmarkRS256Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/sample_key")
-	parsedKey, err := jwa.ParseRSAFromPEM(key)
+	parsedKey, err := pkcs1.ParseFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jwa.RS256, parsedKey)
+	jwatest.BenchmarkSigning(b, jwa.RS256, parsedKey)
 }
 
 func BenchmarkRS384Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/sample_key")
-	parsedKey, err := jwa.ParseRSAFromPEM(key)
+	parsedKey, err := pkcs1.ParseFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jwa.RS384, parsedKey)
+	jwatest.BenchmarkSigning(b, jwa.RS384, parsedKey)
 }
 
 func BenchmarkRS512Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/sample_key")
-	parsedKey, err := jwa.ParseRSAFromPEM(key)
+	parsedKey, err := pkcs1.ParseFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jwa.RS512, parsedKey)
+	jwatest.BenchmarkSigning(b, jwa.RS512, parsedKey)
 }

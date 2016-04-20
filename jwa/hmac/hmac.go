@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package jwa
+package hmac
 
 import (
 	"crypto/hmac"
@@ -24,12 +24,14 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"hash"
+
+	"github.com/raiqub/jose/jwa"
 )
 
 const (
-	// MinimumHMACKeySize defines the minimum recommended key size for symmetric
+	// MinimumKeySize defines the minimum recommended key size for symmetric
 	// keys.
-	MinimumHMACKeySize = 128
+	MinimumKeySize = 128
 )
 
 type hmacAlg struct {
@@ -37,15 +39,15 @@ type hmacAlg struct {
 }
 
 func init() {
-	RegisterAlgorithm(HS256, func() Algorithm {
+	jwa.RegisterAlgorithm(jwa.HS256, func() jwa.Algorithm {
 		return &hmacAlg{func() hash.Hash { return sha256.New() }}
 	})
 
-	RegisterAlgorithm(HS384, func() Algorithm {
+	jwa.RegisterAlgorithm(jwa.HS384, func() jwa.Algorithm {
 		return &hmacAlg{func() hash.Hash { return sha512.New384() }}
 	})
 
-	RegisterAlgorithm(HS512, func() Algorithm {
+	jwa.RegisterAlgorithm(jwa.HS512, func() jwa.Algorithm {
 		return &hmacAlg{func() hash.Hash { return sha512.New() }}
 	})
 }
@@ -54,7 +56,7 @@ func (m *hmacAlg) Verify(input, signature string, key interface{}) error {
 	// Verify the key is the right type
 	keyBytes, ok := key.([]byte)
 	if !ok {
-		return ErrInvalidKey{key}
+		return jwa.ErrInvalidKey{Value: key}
 	}
 
 	// Decode signature, for comparison
@@ -71,7 +73,7 @@ func (m *hmacAlg) Verify(input, signature string, key interface{}) error {
 		return err
 	}
 	if !hmac.Equal(decSig, hasher.Sum(nil)) {
-		return ErrSignatureInvalid(0)
+		return jwa.ErrSignatureInvalid(0)
 	}
 
 	// No validation errors.  Signature is good.
@@ -82,7 +84,7 @@ func (m *hmacAlg) Sign(input string, key interface{}) (string, error) {
 	// Verify the key is the right type
 	keyBytes, ok := key.([]byte)
 	if !ok {
-		return "", ErrInvalidKey{key}
+		return "", jwa.ErrInvalidKey{Value: key}
 	}
 
 	// Generate a signature for input data
@@ -95,13 +97,16 @@ func (m *hmacAlg) Sign(input string, key interface{}) (string, error) {
 }
 
 func (m *hmacAlg) GenerateKey(bits int) (interface{}, error) {
-	if bits < MinimumHMACKeySize {
-		return nil, ErrTooSmallKeySize{MinimumHMACKeySize, bits}
+	if bits < MinimumKeySize {
+		return nil, jwa.ErrTooSmallKeySize{
+			Minimum: MinimumKeySize,
+			Actual:  bits,
+		}
 	}
 
 	buf := make([]byte, bits/8)
 	if _, err := rand.Read(buf); err != nil {
-		return nil, ErrorGeneratingKey(err.Error())
+		return nil, jwa.ErrorGeneratingKey(err.Error())
 	}
 
 	return buf, nil

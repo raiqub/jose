@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-package jwa
+package ecdsa
 
 import (
 	"crypto/x509"
 	"encoding/pem"
+
+	"github.com/raiqub/jose/jwa"
 )
 
 var (
-	ecdsaParsers = []func([]byte) (interface{}, error){
+	parsers = []func([]byte) (interface{}, error){
 		func(key []byte) (interface{}, error) {
 			return x509.ParseECPrivateKey(key)
 		},
@@ -41,22 +43,22 @@ var (
 	}
 )
 
-// ParseECDSAFromPEM decodes PEM encoded ECDSA.
-func ParseECDSAFromPEM(key []byte) (interface{}, error) {
+// ParseFromPEM decodes PEM encoded ECDSA.
+func ParseFromPEM(key []byte) (interface{}, error) {
 	var err error
 
 	// Parse PEM block
 	var block *pem.Block
 	if block, _ = pem.Decode(key); block == nil {
-		return nil, ErrKeyMustBePEMEncoded(0)
+		return nil, jwa.ErrKeyMustBePEMEncoded(0)
 	}
 
 	var parsedKey interface{}
-	for _, v := range ecdsaParsers {
+	for _, v := range parsers {
 		if parsedKey, err = v(block.Bytes); err == nil {
 			return parsedKey, nil
 		}
 	}
 
-	return nil, ErrParsingFromPEM(0)
+	return nil, jwa.ErrParsingFromPEM(0)
 }

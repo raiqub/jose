@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package jwa
+package ecdsa
 
 import (
 	"crypto/ecdsa"
@@ -27,11 +27,13 @@ import (
 	"errors"
 	"hash"
 	"math/big"
+
+	"github.com/raiqub/jose/jwa"
 )
 
 // ErrVerification represents a failure to verify a signature.
 // It is deliberately vague to avoid adaptive attacks.
-var ErrVerification = errors.New("jose/jws: verification error")
+var ErrVerification = errors.New("jose/jwa/ecdsa: verification error")
 
 type ecdsaAlg struct {
 	hashFunc  func() hash.Hash
@@ -40,19 +42,19 @@ type ecdsaAlg struct {
 }
 
 func init() {
-	RegisterAlgorithm(ES256, func() Algorithm {
+	jwa.RegisterAlgorithm(jwa.ES256, func() jwa.Algorithm {
 		return &ecdsaAlg{
 			func() hash.Hash { return sha256.New() },
 			32, 256,
 		}
 	})
-	RegisterAlgorithm(ES384, func() Algorithm {
+	jwa.RegisterAlgorithm(jwa.ES384, func() jwa.Algorithm {
 		return &ecdsaAlg{
 			func() hash.Hash { return sha512.New384() },
 			48, 384,
 		}
 	})
-	RegisterAlgorithm(ES512, func() Algorithm {
+	jwa.RegisterAlgorithm(jwa.ES512, func() jwa.Algorithm {
 		return &ecdsaAlg{
 			func() hash.Hash { return sha512.New() },
 			66, 521,
@@ -65,7 +67,7 @@ func init() {
 func (m *ecdsaAlg) Verify(input, signature string, key interface{}) error {
 	// Decode PEM-encoded key
 	if pem, ok := key.([]byte); ok {
-		out, err := ParseECDSAFromPEM(pem)
+		out, err := ParseFromPEM(pem)
 		if err != nil {
 			return err
 		}
@@ -83,7 +85,7 @@ func (m *ecdsaAlg) Verify(input, signature string, key interface{}) error {
 	case *ecdsa.PrivateKey:
 		*ecdsaKey = k.Public().(ecdsa.PublicKey)
 	default:
-		return ErrInvalidKey{key}
+		return jwa.ErrInvalidKey{Value: key}
 	}
 
 	// Decode the signature
@@ -117,7 +119,7 @@ func (m *ecdsaAlg) Verify(input, signature string, key interface{}) error {
 func (m *ecdsaAlg) Sign(input string, key interface{}) (string, error) {
 	// Decode PEM-encoded key
 	if pem, ok := key.([]byte); ok {
-		out, err := ParseECDSAFromPEM(pem)
+		out, err := ParseFromPEM(pem)
 		if err != nil {
 			return "", err
 		}
@@ -131,7 +133,7 @@ func (m *ecdsaAlg) Sign(input string, key interface{}) (string, error) {
 	case *ecdsa.PrivateKey:
 		ecdsaKey = k
 	default:
-		return "", ErrInvalidKey{key}
+		return "", jwa.ErrInvalidKey{Value: key}
 	}
 
 	// Create the hasher
@@ -147,7 +149,7 @@ func (m *ecdsaAlg) Sign(input string, key interface{}) (string, error) {
 	curveBits := ecdsaKey.Curve.Params().BitSize
 
 	if m.curveBits != curveBits {
-		return "", ErrInvalidKey{key}
+		return "", jwa.ErrInvalidKey{Value: key}
 	}
 
 	keyBytes := curveBits / 8
@@ -178,13 +180,13 @@ func (m *ecdsaAlg) GenerateKey(int) (interface{}, error) {
 	case 521:
 		curve = elliptic.P521()
 	default:
-		return nil, ErrorGeneratingKey(
+		return nil, jwa.ErrorGeneratingKey(
 			"Unsupported elliptic curve size")
 	}
 
 	key, err := ecdsa.GenerateKey(curve, rand.Reader)
 	if err != nil {
-		return nil, ErrorGeneratingKey(err.Error())
+		return nil, jwa.ErrorGeneratingKey(err.Error())
 	}
 
 	return key, nil

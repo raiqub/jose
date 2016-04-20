@@ -14,6 +14,10 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/raiqub/eval.v0"
 	"gopkg.in/raiqub/web.v0"
+
+	// Imports to initialize ECDSA and RSA-PKCS#1 algorithms
+	_ "github.com/raiqub/jose/jwa/ecdsa"
+	_ "github.com/raiqub/jose/jwa/pkcs1"
 )
 
 const (

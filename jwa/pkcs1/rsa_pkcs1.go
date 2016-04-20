@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package jwa
+package pkcs1
 
 import (
 	"crypto"
@@ -25,6 +25,8 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"hash"
+
+	"github.com/raiqub/jose/jwa"
 )
 
 const (
@@ -39,19 +41,19 @@ type rsaPKCS1Alg struct {
 }
 
 func init() {
-	RegisterAlgorithm(RS256, func() Algorithm {
+	jwa.RegisterAlgorithm(jwa.RS256, func() jwa.Algorithm {
 		return &rsaPKCS1Alg{
 			crypto.SHA256,
 			func() hash.Hash { return sha256.New() },
 		}
 	})
-	RegisterAlgorithm(RS384, func() Algorithm {
+	jwa.RegisterAlgorithm(jwa.RS384, func() jwa.Algorithm {
 		return &rsaPKCS1Alg{
 			crypto.SHA384,
 			func() hash.Hash { return sha512.New384() },
 		}
 	})
-	RegisterAlgorithm(RS512, func() Algorithm {
+	jwa.RegisterAlgorithm(jwa.RS512, func() jwa.Algorithm {
 		return &rsaPKCS1Alg{
 			crypto.SHA512,
 			func() hash.Hash { return sha512.New() },
@@ -67,7 +69,7 @@ func (m *rsaPKCS1Alg) Verify(input, signature string, key interface{}) error {
 
 	// Decode PEM-encoded key
 	if pem, ok := key.([]byte); ok {
-		out, err := ParseRSAFromPEM(pem)
+		out, err := ParseFromPEM(pem)
 		if err != nil {
 			return err
 		}
@@ -83,7 +85,7 @@ func (m *rsaPKCS1Alg) Verify(input, signature string, key interface{}) error {
 	case *rsa.PrivateKey:
 		*rsaKey = k.Public().(rsa.PublicKey)
 	default:
-		return ErrInvalidKey{key}
+		return jwa.ErrInvalidKey{Value: key}
 	}
 
 	// Decode the signature
@@ -108,7 +110,7 @@ func (m *rsaPKCS1Alg) Sign(input string, key interface{}) (string, error) {
 
 	// Decode PEM-encoded key
 	if pem, ok := key.([]byte); ok {
-		out, err := ParseRSAFromPEM(pem)
+		out, err := ParseFromPEM(pem)
 		if err != nil {
 			return "", err
 		}
@@ -121,7 +123,7 @@ func (m *rsaPKCS1Alg) Sign(input string, key interface{}) (string, error) {
 	case *rsa.PrivateKey:
 		rsaKey = k
 	default:
-		return "", ErrInvalidKey{key}
+		return "", jwa.ErrInvalidKey{Value: key}
 	}
 
 	// Create hasher
@@ -140,12 +142,15 @@ func (m *rsaPKCS1Alg) Sign(input string, key interface{}) (string, error) {
 
 func (m *rsaPKCS1Alg) GenerateKey(bits int) (interface{}, error) {
 	if bits < MinimumRSAKeySize {
-		return nil, ErrTooSmallKeySize{MinimumRSAKeySize, bits}
+		return nil, jwa.ErrTooSmallKeySize{
+			Minimum: MinimumRSAKeySize,
+			Actual:  bits,
+		}
 	}
 
 	key, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
-		return nil, ErrorGeneratingKey(err.Error())
+		return nil, jwa.ErrorGeneratingKey(err.Error())
 	}
 
 	return key, nil

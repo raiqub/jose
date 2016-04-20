@@ -39,31 +39,31 @@ type Algorithm interface {
 // Ref: https://tools.ietf.org/html/rfc7518#section-3.1.
 const (
 	// HS256 defines an HMAC algorithm using SHA-256.
-	HS256 = "HS256"
+	HS256 = "HS256" // import github.com/raiqub/jose/jwa/hmac
 
 	// HS384 defines an HMAC algorithm using SHA-384.
-	HS384 = "HS384"
+	HS384 = "HS384" // import github.com/raiqub/jose/jwa/hmac
 
 	// HS384 defines an HMAC algorithm using SHA-512.
-	HS512 = "HS512"
+	HS512 = "HS512" // import github.com/raiqub/jose/jwa/hmac
 
 	// RS256 defines an RSASSA-PKCS1-v1_5 algorithm using SHA-256.
-	RS256 = "RS256"
+	RS256 = "RS256" // import github.com/raiqub/jose/jwa/pkcs1
 
 	// RS384 defines an RSASSA-PKCS1-v1_5 algorithm using SHA-384.
-	RS384 = "RS384"
+	RS384 = "RS384" // import github.com/raiqub/jose/jwa/pkcs1
 
 	// RS512 defines an RSASSA-PKCS1-v1_5 algorithm using SHA-512.
-	RS512 = "RS512"
+	RS512 = "RS512" // import github.com/raiqub/jose/jwa/pkcs1
 
 	// ES256 defines an ECDSA algorithm using P-256 and SHA-256.
-	ES256 = "ES256"
+	ES256 = "ES256" // import github.com/raiqub/jose/jwa/ecdsa
 
 	// ES384 defines an ECDSA algorithm using P-384 and SHA-384.
-	ES384 = "ES384"
+	ES384 = "ES384" // import github.com/raiqub/jose/jwa/ecdsa
 
 	// ES384 defines an ECDSA algorithm using P-521 and SHA-512.
-	ES512 = "ES512"
+	ES512 = "ES512" // import github.com/raiqub/jose/jwa/ecdsa
 
 	// ES256 defines an RSASSA-PSS algorithm using SHA-256 and MGF1 with
 	// SHA-256.

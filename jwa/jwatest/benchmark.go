@@ -1,5 +1,4 @@
 /*
- * Copyright 2012 Dave Grijalva
  * Copyright 2016 Fabrício Godoy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,23 +14,26 @@
  * limitations under the License.
  */
 
-package jwa_test
+package jwatest
 
 import (
 	"testing"
 
-	"github.com/raiqub/jose/jwt"
+	"github.com/raiqub/jose/jwa"
 )
 
-// Helper method for benchmarking various methods
-func benchmarkSigning(b *testing.B, alg string, key interface{}) {
-	t := jwt.NewTokenByAlg(alg)
+const (
+	inputTest = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9`
+)
+
+// BenchmarkSigning run parallel signings using specifid algorithm and key.
+func BenchmarkSigning(b *testing.B, alg string, key interface{}) {
+	method, _ := jwa.New(alg)
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			if _, err := t.EncodeAndSign(key); err != nil {
+			if _, err := method.Sign(inputTest, key); err != nil {
 				b.Fatal(err)
 			}
 		}
 	})
-
 }

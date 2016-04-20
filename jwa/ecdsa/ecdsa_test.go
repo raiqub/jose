@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package jwa_test
+package ecdsa_test
 
 import (
 	"io/ioutil"
@@ -23,6 +23,8 @@ import (
 	"testing"
 
 	"github.com/raiqub/jose/jwa"
+	"github.com/raiqub/jose/jwa/ecdsa"
+	"github.com/raiqub/jose/jwa/jwatest"
 )
 
 var ecdsaTestData = []struct {
@@ -128,7 +130,7 @@ func TestECDSASign(t *testing.T) {
 
 func TestECDSAVerifyWithPreParsedPublicKey(t *testing.T) {
 	key, _ := ioutil.ReadFile("test/ec256-public.pem")
-	parsedKey, err := jwa.ParseECDSAFromPEM(key)
+	parsedKey, err := ecdsa.ParseFromPEM(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +149,7 @@ func TestECDSAVerifyWithPreParsedPublicKey(t *testing.T) {
 
 func TestECDSAWithPreParsedPrivateKey(t *testing.T) {
 	key, _ := ioutil.ReadFile("test/ec256-private.pem")
-	parsedKey, err := jwa.ParseECDSAFromPEM(key)
+	parsedKey, err := ecdsa.ParseFromPEM(key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -174,45 +176,45 @@ func TestECDSAKeyParsing(t *testing.T) {
 	pubKey, _ := ioutil.ReadFile("test/ec512-public.pem")
 	badKey := []byte("All your base are belong to key")
 
-	if _, e := jwa.ParseECDSAFromPEM(key); e != nil {
+	if _, e := ecdsa.ParseFromPEM(key); e != nil {
 		t.Errorf("Failed to parse valid private key: %v", e)
 	}
 
-	if _, e := jwa.ParseECDSAFromPEM(pubKey); e != nil {
+	if _, e := ecdsa.ParseFromPEM(pubKey); e != nil {
 		t.Errorf("Failed to parse valid public key: %v", e)
 	}
 
-	if k, e := jwa.ParseECDSAFromPEM(badKey); e == nil {
+	if k, e := ecdsa.ParseFromPEM(badKey); e == nil {
 		t.Errorf("Parsed invalid key as valid private key: %v", k)
 	}
 }
 
 func BenchmarkES256Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/ec256-private.pem")
-	parsedKey, err := jwa.ParseECDSAFromPEM(key)
+	parsedKey, err := ecdsa.ParseFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jwa.ES256, parsedKey)
+	jwatest.BenchmarkSigning(b, jwa.ES256, parsedKey)
 }
 
 func BenchmarkES384Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/ec384-private.pem")
-	parsedKey, err := jwa.ParseECDSAFromPEM(key)
+	parsedKey, err := ecdsa.ParseFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jwa.ES384, parsedKey)
+	jwatest.BenchmarkSigning(b, jwa.ES384, parsedKey)
 }
 
 func BenchmarkES512Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/ec512-private.pem")
-	parsedKey, err := jwa.ParseECDSAFromPEM(key)
+	parsedKey, err := ecdsa.ParseFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	benchmarkSigning(b, jwa.ES512, parsedKey)
+	jwatest.BenchmarkSigning(b, jwa.ES512, parsedKey)
 }
