@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package pkcs1
+package pss
 
 import (
 	"crypto"
@@ -36,28 +36,41 @@ const (
 	MinimumRSAKeySize = 2048
 )
 
-type rsaPKCS1Alg struct {
-	hashAlg  crypto.Hash
-	hashFunc func() hash.Hash
+type rsaPSSAlg struct {
+	hashAlg    crypto.Hash
+	hashFunc   func() hash.Hash
+	pssOptions *rsa.PSSOptions
 }
 
 func init() {
-	jwa.RegisterAlgorithm(jwa.RS256, func() jwa.Algorithm {
-		return &rsaPKCS1Alg{
+	jwa.RegisterAlgorithm(jwa.PS256, func() jwa.Algorithm {
+		return &rsaPSSAlg{
 			crypto.SHA256,
 			func() hash.Hash { return sha256.New() },
+			&rsa.PSSOptions{
+				SaltLength: rsa.PSSSaltLengthAuto,
+				Hash:       crypto.SHA256,
+			},
 		}
 	})
-	jwa.RegisterAlgorithm(jwa.RS384, func() jwa.Algorithm {
-		return &rsaPKCS1Alg{
+	jwa.RegisterAlgorithm(jwa.PS384, func() jwa.Algorithm {
+		return &rsaPSSAlg{
 			crypto.SHA384,
 			func() hash.Hash { return sha512.New384() },
+			&rsa.PSSOptions{
+				SaltLength: rsa.PSSSaltLengthAuto,
+				Hash:       crypto.SHA384,
+			},
 		}
 	})
-	jwa.RegisterAlgorithm(jwa.RS512, func() jwa.Algorithm {
-		return &rsaPKCS1Alg{
+	jwa.RegisterAlgorithm(jwa.PS512, func() jwa.Algorithm {
+		return &rsaPSSAlg{
 			crypto.SHA512,
 			func() hash.Hash { return sha512.New() },
+			&rsa.PSSOptions{
+				SaltLength: rsa.PSSSaltLengthAuto,
+				Hash:       crypto.SHA512,
+			},
 		}
 	})
 }
@@ -65,7 +78,7 @@ func init() {
 // Implements the Verify method from SigningMethod
 // For this signing method, must be either a PEM encoded PKCS1 or PKCS8 RSA public key as
 // []byte, or an rsa.PublicKey structure.
-func (m *rsaPKCS1Alg) Verify(input, signature string, key interface{}) error {
+func (m *rsaPSSAlg) Verify(input, signature string, key interface{}) error {
 	var err error
 
 	// Decode PEM-encoded key
@@ -100,13 +113,14 @@ func (m *rsaPKCS1Alg) Verify(input, signature string, key interface{}) error {
 	hasher.Write([]byte(input))
 
 	// Verify the signature
-	return rsa.VerifyPKCS1v15(rsaKey, m.hashAlg, hasher.Sum(nil), decSig)
+	return rsa.VerifyPSS(rsaKey, m.hashAlg, hasher.Sum(nil), decSig,
+		m.pssOptions)
 }
 
 // Implements the Sign method from SigningMethod
 // For this signing method, must be either a PEM encoded PKCS1 or PKCS8 RSA private key as
 // []byte, or an rsa.PrivateKey structure.
-func (m *rsaPKCS1Alg) Sign(input string, key interface{}) (string, error) {
+func (m *rsaPSSAlg) Sign(input string, key interface{}) (string, error) {
 	var err error
 
 	// Decode PEM-encoded key
@@ -132,8 +146,8 @@ func (m *rsaPKCS1Alg) Sign(input string, key interface{}) (string, error) {
 	hasher.Write([]byte(input))
 
 	// Sign the string and return the encoded bytes
-	sigBytes, err := rsa.SignPKCS1v15(rand.Reader, rsaKey,
-		m.hashAlg, hasher.Sum(nil))
+	sigBytes, err := rsa.SignPSS(rand.Reader, rsaKey, m.hashAlg,
+		hasher.Sum(nil), m.pssOptions)
 	if err != nil {
 		return "", err
 	}
@@ -141,7 +155,7 @@ func (m *rsaPKCS1Alg) Sign(input string, key interface{}) (string, error) {
 	return base64.RawURLEncoding.EncodeToString(sigBytes), nil
 }
 
-func (m *rsaPKCS1Alg) GenerateKey(bits int) (interface{}, error) {
+func (m *rsaPSSAlg) GenerateKey(bits int) (interface{}, error) {
 	if bits < MinimumRSAKeySize {
 		return nil, jwa.ErrTooSmallKeySize{
 			Minimum: MinimumRSAKeySize,

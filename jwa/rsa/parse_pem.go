@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package pkcs1
+package rsa
 
 import (
 	"crypto/x509"

@@ -15,9 +15,10 @@ import (
 	"gopkg.in/raiqub/eval.v0"
 	"gopkg.in/raiqub/web.v0"
 
-	// Imports to initialize ECDSA and RSA-PKCS#1 algorithms
+	// Imports to initialize ECDSA, RSA-PKCS#1 and RSA-PSS algorithms
 	_ "github.com/raiqub/jose/jwa/ecdsa"
 	_ "github.com/raiqub/jose/jwa/pkcs1"
+	_ "github.com/raiqub/jose/jwa/pss"
 )
 
 const (
@@ -103,10 +104,15 @@ func TestCreateAndValidate(t *testing.T) {
 	testCreateAndValidate(jwa.ES384, session, t)
 	testCreateAndValidate(jwa.ES512, session, t)
 
-	// RSA
+	// RSA PKCS#1
 	testCreateAndValidate(jwa.RS256, session, t)
 	testCreateAndValidate(jwa.RS384, session, t)
 	testCreateAndValidate(jwa.RS512, session, t)
+
+	// RSA PSS
+	testCreateAndValidate(jwa.PS256, session, t)
+	testCreateAndValidate(jwa.PS384, session, t)
+	testCreateAndValidate(jwa.PS512, session, t)
 }
 
 func createJWTPayload() *jwt.Payload {

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package pkcs1_test
+package pss_test
 
 import (
 	"io/ioutil"
@@ -24,7 +24,7 @@ import (
 
 	"github.com/raiqub/jose/jwa"
 	"github.com/raiqub/jose/jwa/jwatest"
-	_ "github.com/raiqub/jose/jwa/pkcs1"
+	_ "github.com/raiqub/jose/jwa/pss"
 	"github.com/raiqub/jose/jwa/rsa"
 )
 
@@ -33,7 +33,7 @@ const (
 	pubKeyFile  = "../rsa/test/sample_key.pub"
 )
 
-var rsaTestData = []struct {
+var rsaPSSTestData = []struct {
 	name        string
 	tokenString string
 	alg         string
@@ -41,39 +41,39 @@ var rsaTestData = []struct {
 	valid       bool
 }{
 	{
-		"Basic RS256",
-		"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJmb28iOiJiYXIifQ.FhkiHkoESI_cG3NPigFrxEk9Z60_oXrOT2vGm9Pn6RDgYNovYORQmmA0zs1AoAOf09ly2Nx2YAg6ABqAYga1AcMFkJljwxTT5fYphTuqpWdy4BELeSYJx5Ty2gmr8e7RonuUztrdD5WfPqLKMm1Ozp_T6zALpRmwTIW0QPnaBXaQD90FplAg46Iy1UlDKr-Eupy0i5SLch5Q-p2ZpaL_5fnTIUDlxC3pWhJTyx_71qDI-mAA_5lE_VdroOeflG56sSmDxopPEG3bFlSu1eowyBfxtu0_CuVd-M42RU75Zc4Gsj6uV77MBtbMrf4_7M_NUTSgoIF3fRqxrj0NzihIBg",
-		"RS256",
+		"Basic PS256",
+		"eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.PPG4xyDVY8ffp4CcxofNmsTDXsrVG2npdQuibLhJbv4ClyPTUtR5giNSvuxo03kB6I8VXVr0Y9X7UxhJVEoJOmULAwRWaUsDnIewQa101cVhMa6iR8X37kfFoiZ6NkS-c7henVkkQWu2HtotkEtQvN5hFlk8IevXXPmvZlhQhwzB1sGzGYnoi1zOfuL98d3BIjUjtlwii5w6gYG2AEEzp7HnHCsb3jIwUPdq86Oe6hIFjtBwduIK90ca4UqzARpcfwxHwVLMpatKask00AgGVI0ysdk0BLMjmLutquD03XbThHScC2C2_Pp4cHWgMzvbgLU2RYYZcZRKr46QeNgz9w",
+		"PS256",
 		map[string]interface{}{"foo": "bar"},
 		true,
 	},
 	{
-		"Basic RS384",
-		"eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.W-jEzRfBigtCWsinvVVuldiuilzVdU5ty0MvpLaSaqK9PlAWWlDQ1VIQ_qSKzwL5IXaZkvZFJXT3yL3n7OUVu7zCNJzdwznbC8Z-b0z2lYvcklJYi2VOFRcGbJtXUqgjk2oGsiqUMUMOLP70TTefkpsgqDxbRh9CDUfpOJgW-dU7cmgaoswe3wjUAUi6B6G2YEaiuXC0XScQYSYVKIzgKXJV8Zw-7AN_DBUI4GkTpsvQ9fVVjZM9csQiEXhYekyrKu1nu_POpQonGd8yqkIyXPECNmmqH5jH4sFiF67XhD7_JpkvLziBpI-uh86evBUadmHhb9Otqw3uV3NTaXLzJw",
-		"RS384",
+		"Basic PS384",
+		"eyJhbGciOiJQUzM4NCIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.w7-qqgj97gK4fJsq_DCqdYQiylJjzWONvD0qWWWhqEOFk2P1eDULPnqHRnjgTXoO4HAw4YIWCsZPet7nR3Xxq4ZhMqvKW8b7KlfRTb9cH8zqFvzMmybQ4jv2hKc3bXYqVow3AoR7hN_CWXI3Dv6Kd2X5xhtxRHI6IL39oTVDUQ74LACe-9t4c3QRPuj6Pq1H4FAT2E2kW_0KOc6EQhCLWEhm2Z2__OZskDC8AiPpP8Kv4k2vB7l0IKQu8Pr4RcNBlqJdq8dA5D3hk5TLxP8V5nG1Ib80MOMMqoS3FQvSLyolFX-R_jZ3-zfq6Ebsqr0yEb0AH2CfsECF7935Pa0FKQ",
+		"PS384",
 		map[string]interface{}{"foo": "bar"},
 		true,
 	},
 	{
-		"Basic RS512",
-		"eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.zBlLlmRrUxx4SJPUbV37Q1joRcI9EW13grnKduK3wtYKmDXbgDpF1cZ6B-2Jsm5RB8REmMiLpGms-EjXhgnyh2TSHE-9W2gA_jvshegLWtwRVDX40ODSkTb7OVuaWgiy9y7llvcknFBTIg-FnVPVpXMmeV_pvwQyhaz1SSwSPrDyxEmksz1hq7YONXhXPpGaNbMMeDTNP_1oj8DZaqTIL9TwV8_1wb2Odt_Fy58Ke2RVFijsOLdnyEAjt2n9Mxihu9i3PhNBkkxa2GbnXBfq3kzvZ_xxGGopLdHhJjcGWXO-NiwI9_tiu14NRv4L2xC0ItD9Yz68v2ZIZEp_DuzwRQ",
-		"RS512",
+		"Basic PS512",
+		"eyJhbGciOiJQUzUxMiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.GX1HWGzFaJevuSLavqqFYaW8_TpvcjQ8KfC5fXiSDzSiT9UD9nB_ikSmDNyDILNdtjZLSvVKfXxZJqCfefxAtiozEDDdJthZ-F0uO4SPFHlGiXszvKeodh7BuTWRI2wL9-ZO4mFa8nq3GMeQAfo9cx11i7nfN8n2YNQ9SHGovG7_T_AvaMZB_jT6jkDHpwGR9mz7x1sycckEo6teLdHRnH_ZdlHlxqknmyTu8Odr5Xh0sJFOL8BepWbbvIIn-P161rRHHiDWFv6nhlHwZnVzjx7HQrWSGb6-s2cdLie9QL_8XaMcUpjLkfOMKkDOfHo6AvpL7Jbwi83Z2ZTHjJWB-A",
+		"PS512",
 		map[string]interface{}{"foo": "bar"},
 		true,
 	},
 	{
-		"basic invalid: foo => bar",
-		"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJmb28iOiJiYXIifQ.EhkiHkoESI_cG3NPigFrxEk9Z60_oXrOT2vGm9Pn6RDgYNovYORQmmA0zs1AoAOf09ly2Nx2YAg6ABqAYga1AcMFkJljwxTT5fYphTuqpWdy4BELeSYJx5Ty2gmr8e7RonuUztrdD5WfPqLKMm1Ozp_T6zALpRmwTIW0QPnaBXaQD90FplAg46Iy1UlDKr-Eupy0i5SLch5Q-p2ZpaL_5fnTIUDlxC3pWhJTyx_71qDI-mAA_5lE_VdroOeflG56sSmDxopPEG3bFlSu1eowyBfxtu0_CuVd-M42RU75Zc4Gsj6uV77MBtbMrf4_7M_NUTSgoIF3fRqxrj0NzihIBg",
-		"RS256",
+		"basic PS256 invalid: foo => bar",
+		"eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.PPG4xyDVY8ffp4CcxofNmsTDXsrVG2npdQuibLhJbv4ClyPTUtR5giNSvuxo03kB6I8VXVr0Y9X7UxhJVEoJOmULAwRWaUsDnIewQa101cVhMa6iR8X37kfFoiZ6NkS-c7henVkkQWu2HtotkEtQvN5hFlk8IevXXPmvZlhQhwzB1sGzGYnoi1zOfuL98d3BIjUjtlwii5w6gYG2AEEzp7HnHCsb3jIwUPdq86Oe6hIFjtBwduIK90ca4UqzARpcfwxHwVLMpatKask00AgGVI0ysdk0BLMjmLutquD03XbThHScC2C2_Pp4cHWgMzvbgLU2RYYZcZRKr46QeNgz9W",
+		"PS256",
 		map[string]interface{}{"foo": "bar"},
 		false,
 	},
 }
 
-func TestRSAVerify(t *testing.T) {
+func TestRSAPSSVerify(t *testing.T) {
 	key, _ := ioutil.ReadFile(pubKeyFile)
 
-	for _, data := range rsaTestData {
+	for _, data := range rsaPSSTestData {
 		method, err := jwa.New(data.alg)
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
@@ -95,10 +95,10 @@ func TestRSAVerify(t *testing.T) {
 	}
 }
 
-func TestRSASign(t *testing.T) {
+func TestRSAPSSSign(t *testing.T) {
 	key, _ := ioutil.ReadFile(privKeyFile)
 
-	for _, data := range rsaTestData {
+	for _, data := range rsaPSSTestData {
 		if !data.valid {
 			continue
 		}
@@ -118,26 +118,26 @@ func TestRSASign(t *testing.T) {
 		if err != nil {
 			t.Errorf("[%s] Error signing token: %v", data.name, err)
 		}
-		if sig != signature {
+		if sig == signature {
 			t.Errorf(
-				"[%s] Incorrect signature.\nwas:\n%v\nexpecting:\n%v",
+				"[%s] Signatures shouldn't match\nnew:\n%v\noriginal:\n%v",
 				data.name, sig, signature)
 		}
 	}
 }
 
-func TestRSAVerifyWithPreParsedPublicKey(t *testing.T) {
+func TestRSAPSSVerifyWithPreParsedPublicKey(t *testing.T) {
 	key, _ := ioutil.ReadFile(pubKeyFile)
 	parsedKey, err := rsa.ParseFromPEM(key)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testData := rsaTestData[0]
+	testData := rsaPSSTestData[0]
 	lastDotIdx := strings.LastIndex(testData.tokenString, ".")
 	input := testData.tokenString[:lastDotIdx]
 	signature := testData.tokenString[lastDotIdx+1:]
-	method, _ := jwa.New(jwa.RS256)
+	method, _ := jwa.New(jwa.PS256)
 
 	err = method.Verify(input, signature, parsedKey)
 	if err != nil {
@@ -145,56 +145,56 @@ func TestRSAVerifyWithPreParsedPublicKey(t *testing.T) {
 	}
 }
 
-func TestRSAWithPreParsedPrivateKey(t *testing.T) {
+func TestRSAPSSWithPreParsedPrivateKey(t *testing.T) {
 	key, _ := ioutil.ReadFile(privKeyFile)
 	parsedKey, err := rsa.ParseFromPEM(key)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testData := rsaTestData[0]
+	testData := rsaPSSTestData[0]
 	lastDotIdx := strings.LastIndex(testData.tokenString, ".")
 	input := testData.tokenString[:lastDotIdx]
 	signature := testData.tokenString[lastDotIdx+1:]
-	method, _ := jwa.New(jwa.RS256)
+	method, _ := jwa.New(jwa.PS256)
 
 	sig, err := method.Sign(input, parsedKey)
 	if err != nil {
 		t.Errorf("[%s] Error signing token: %v", testData.name, err)
 	}
-	if sig != signature {
+	if sig == signature {
 		t.Errorf(
-			"[%s] Incorrect signature.\nwas:\n%v\nexpecting:\n%v",
-			testData.name, sig, signature)
+			"[%s] Identical signatures.\nbefore:\n%v\nafter:\n%v",
+			testData.name, signature, sig)
 	}
 }
 
-func BenchmarkRS256Signing(b *testing.B) {
+func BenchmarkPS256Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile(privKeyFile)
 	parsedKey, err := rsa.ParseFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	jwatest.BenchmarkSigning(b, jwa.RS256, parsedKey)
+	jwatest.BenchmarkSigning(b, jwa.PS256, parsedKey)
 }
 
-func BenchmarkRS384Signing(b *testing.B) {
+func BenchmarkPS384Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile(privKeyFile)
 	parsedKey, err := rsa.ParseFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	jwatest.BenchmarkSigning(b, jwa.RS384, parsedKey)
+	jwatest.BenchmarkSigning(b, jwa.PS384, parsedKey)
 }
 
-func BenchmarkRS512Signing(b *testing.B) {
+func BenchmarkPS512Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile(privKeyFile)
 	parsedKey, err := rsa.ParseFromPEM(key)
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	jwatest.BenchmarkSigning(b, jwa.RS512, parsedKey)
+	jwatest.BenchmarkSigning(b, jwa.PS512, parsedKey)
 }

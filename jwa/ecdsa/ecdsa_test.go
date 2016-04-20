@@ -171,24 +171,6 @@ func TestECDSAWithPreParsedPrivateKey(t *testing.T) {
 	}
 }
 
-func TestECDSAKeyParsing(t *testing.T) {
-	key, _ := ioutil.ReadFile("test/ec256-private.pem")
-	pubKey, _ := ioutil.ReadFile("test/ec512-public.pem")
-	badKey := []byte("All your base are belong to key")
-
-	if _, e := ecdsa.ParseFromPEM(key); e != nil {
-		t.Errorf("Failed to parse valid private key: %v", e)
-	}
-
-	if _, e := ecdsa.ParseFromPEM(pubKey); e != nil {
-		t.Errorf("Failed to parse valid public key: %v", e)
-	}
-
-	if k, e := ecdsa.ParseFromPEM(badKey); e == nil {
-		t.Errorf("Parsed invalid key as valid private key: %v", k)
-	}
-}
-
 func BenchmarkES256Signing(b *testing.B) {
 	key, _ := ioutil.ReadFile("test/ec256-private.pem")
 	parsedKey, err := ecdsa.ParseFromPEM(key)
