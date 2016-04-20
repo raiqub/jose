@@ -68,13 +68,13 @@ func (e ErrKeyMustBePEMEncoded) Error() string {
 	return "The key should be PEM encoded"
 }
 
-// An ErrKeyMustBePKCS1Or8 represents an error when specified key type is not
-// PKCS#1 or PKCS#8.
-type ErrKeyMustBePKCS1Or8 int
+// An ErrParsingFromPEM represents an error when the key read from PEM-encoded
+// data could not be parsed by pre-defined parsers.
+type ErrParsingFromPEM int
 
 // Error returns string representation of current instance error.
-func (e ErrKeyMustBePKCS1Or8) Error() string {
-	return "The key should be PKCS#1 or PKCS#8 type"
+func (e ErrParsingFromPEM) Error() string {
+	return "Error trying to parse key read from PEM-encoded key"
 }
 
 // An ErrSignatureInvalid represents an error when token signature doesn't match

@@ -58,5 +58,5 @@ func ParseECDSAFromPEM(key []byte) (interface{}, error) {
 		}
 	}
 
-	return nil, ErrKeyMustBePKCS1Or8(0)
+	return nil, ErrParsingFromPEM(0)
 }
