@@ -16,48 +16,50 @@
 
 //go:generate ffjson $GOFILE
 
-package jwt
+package jws
 
 const (
 	// JWTHeaderType defines the type name for JWT header.
-	JWTHeaderType = "JWT"
+	JWTHeaderType = "JOSE"
 )
 
-// A Header represents the header part of a token as defined by JWT
-// specification.
-type Header struct {
-	ID        string `json:"kid,omitempty"`
-	Type      string `json:"typ"`
-	Algorithm string `json:"alg"`
-	JWKSetURL string `json:"jku,omitempty"`
+// A RegisteredHeader represents the JOSE header with all registered parameter
+// names.
+type RegisteredHeader struct {
+	ID          string   `json:"kid,omitempty"`
+	Type        string   `json:"typ,omitempty"`
+	ContentType string   `json:"cty,omitempty"`
+	Algorithm   string   `json:"alg"`
+	JWKSetURL   string   `json:"jku,omitempty"`
+	JWK         string   `json:"jwk,omitempty"`
+	X509URL     string   `json:"x5u,omitempty"`
+	X509Chain   string   `json:"x5c,omitempty"`
+	X509SHA1    string   `json:"x5t,omitempty"`
+	X509SHA256  string   `json:"x5t#S256,omitempty"`
+	Critical    []string `json:"crit,omitempty"`
 }
 
 // NewHeader creates a new instance of Header type.
-func NewHeader(alg string) *Header {
-	return &Header{
+func NewHeader(alg string) *RegisteredHeader {
+	return &RegisteredHeader{
 		Type:      JWTHeaderType,
 		Algorithm: alg,
 	}
 }
 
 // GetID returns the identifier of the key used to sign current token.
-func (h *Header) GetID() string {
+func (h *RegisteredHeader) GetID() string {
 	return h.ID
 }
 
-// GetType returns the type of current token.
-func (h *Header) GetType() string {
-	return h.Type
-}
-
 // GetAlgorithm returns the algorithm used to sign current token.
-func (h *Header) GetAlgorithm() string {
+func (h *RegisteredHeader) GetAlgorithm() string {
 	return h.Algorithm
 }
 
 // GetJWKSetURL returns a URL to retrieve the key used to sign current token.
-func (h *Header) GetJWKSetURL() string {
+func (h *RegisteredHeader) GetJWKSetURL() string {
 	return h.JWKSetURL
 }
 
-var _ TokenHeader = (*Header)(nil)
+var _ Header = (*RegisteredHeader)(nil)

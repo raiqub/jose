@@ -14,27 +14,17 @@
  * limitations under the License.
  */
 
-package jwt
+package jws
 
-import (
-	"encoding/json"
-	"time"
-)
+import "encoding/json"
 
-// A TokenPayload represents the payload part of a token as defined by JWT
-// specification.
-type TokenPayload interface {
-	GetExpireAt() time.Time
-	GetIssuedAt() time.Time
-	GetIssuer() string
-	GetNotBefore() time.Time
-	GetScopes() []string
-	GetUserScopes() []string
-
-	SetExpireAt(time.Time)
-	SetIssuedAt(time.Time)
-	SetIssuer(string)
-	SetNotBefore(time.Time)
+// A Header represents the JOSE Header which describes the digital signature or
+// MAC applied to the JWS Protected Header and the JWS Payload and optionally
+// additional properties of the JWS.
+type Header interface {
+	GetID() string
+	GetAlgorithm() string
+	GetJWKSetURL() string
 
 	json.Marshaler
 	json.Unmarshaler

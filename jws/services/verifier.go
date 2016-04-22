@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	jwkservices "github.com/raiqub/jose/jwk/services"
+	"github.com/raiqub/jose/jws"
 	"github.com/raiqub/jose/jwt"
 	"gopkg.in/raiqub/dot.v1"
 )
@@ -47,18 +48,18 @@ func NewVerifier(
 }
 
 // Verify specified token and decode it.
-func (v *Verifier) Verify(rawtoken string) (*jwt.Token, error) {
-	token, err := jwt.DecodeAndValidate(
+func (v *Verifier) Verify(rawtoken string) (*jws.SignedToken, error) {
+	token, err := jws.DecodeAndValidate(
 		rawtoken, nil, nil,
-		func(token *jwt.Token) (interface{}, error) {
+		func(header jws.Header) (interface{}, error) {
 			var key *Cache
 			var ok bool
 
-			if key, ok = v.keys[token.Header.GetID()]; !ok {
-				return nil, ErrInvalidKeyID(token.Header.GetID())
+			if key, ok = v.keys[header.GetID()]; !ok {
+				return nil, ErrInvalidKeyID(header.GetID())
 			}
-			if token.Header.GetAlgorithm() != key.JWK.Algorithm {
-				return nil, ErrUnexpectedAlg(token.Header.GetAlgorithm())
+			if header.GetAlgorithm() != key.JWK.Algorithm {
+				return nil, ErrUnexpectedAlg(header.GetAlgorithm())
 			}
 
 			return key.RawKey, nil
@@ -79,13 +80,13 @@ func (v *Verifier) Verify(rawtoken string) (*jwt.Token, error) {
 
 // VerifyScopes validates client and user scopes when available.
 func (v *Verifier) VerifyScopes(
-	payload jwt.TokenPayload,
+	claims jwt.ClientUserScopes,
 	client, user []string,
 ) bool {
 	var scopes []string
 
 	if client != nil && len(client) > 0 {
-		scopes = payload.GetScopes()
+		scopes = claims.GetScopes()
 		if scopes == nil || len(scopes) == 0 {
 			return false
 		}
@@ -97,7 +98,7 @@ func (v *Verifier) VerifyScopes(
 	}
 
 	if user != nil && len(user) > 0 {
-		scopes = payload.GetUserScopes()
+		scopes = claims.GetUserScopes()
 		if scopes == nil || len(scopes) == 0 {
 			return false
 		}

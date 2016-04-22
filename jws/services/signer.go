@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/raiqub/jose/jwk"
+	"github.com/raiqub/jose/jws"
 	"github.com/raiqub/jose/jwt"
 	"gopkg.in/mgo.v2"
 )
@@ -38,7 +39,7 @@ func NewSigner(config Config, col *mgo.Collection) (*Signer, error) {
 }
 
 // Create a new token and sign it.
-func (s *Signer) Create(payload jwt.TokenPayload) (string, error) {
+func (s *Signer) Create(payload jwt.Claims) (string, error) {
 	now := time.Now()
 	signKey := s.keys[s.config.SignKeyID]
 
@@ -47,14 +48,17 @@ func (s *Signer) Create(payload jwt.TokenPayload) (string, error) {
 	payload.SetNotBefore(now)
 	payload.SetIssuedAt(now)
 
-	header := &jwt.Header{
+	header := &jws.RegisteredHeader{
 		ID:        s.config.SignKeyID,
-		Type:      jwt.JWTHeaderType,
+		Type:      jws.JWTHeaderType,
 		Algorithm: signKey.JWK.Algorithm,
 		JWKSetURL: s.config.SetURL,
 	}
 
-	token := jwt.NewToken(header, payload)
+	token := jws.SignedToken{
+		Header:  header,
+		Payload: payload,
+	}
 	out, err := token.EncodeAndSign(signKey.RawKey)
 	if err != nil {
 		return "", err

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package jwt
+package jws
 
 // An ErrGetKey represents an error when was unable to retrieve token signing
 // key.

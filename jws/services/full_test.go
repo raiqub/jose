@@ -115,12 +115,12 @@ func TestCreateAndValidate(t *testing.T) {
 	testCreateAndValidate(jwa.PS512, session, t)
 }
 
-func createJWTPayload() *jwt.Payload {
-	return &jwt.Payload{
+func createJWTPayload() jwt.Claims {
+	return &jwt.CommonClaims{
 		Audience: audience,
 		Subject:  "gG26se5wyWDOEjaNHwlXm2i9G3mnYGbG62BBq3ZE",
 		Scopes:   []string{"owner", "vehicle", "freight"},
-		User: &jwt.PayloadUser{
+		User: &jwt.UserClaims{
 			Name:    "John Doe",
 			Email:   "john.doe@example.com",
 			Country: "USA",

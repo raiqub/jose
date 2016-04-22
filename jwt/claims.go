@@ -16,16 +16,37 @@
 
 package jwt
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"io"
+	"time"
+)
 
-// A TokenHeader represents the header part of a token as defined by JWT
-// specification.
-type TokenHeader interface {
-	GetID() string
-	GetType() string
-	GetAlgorithm() string
-	GetJWKSetURL() string
+// A Claims set represents a JSON object whose members are the claims conveyed
+// by the JWT.
+type Claims interface {
+	GetAudience() string
+	GetExpireAt() time.Time
+	GetIssuedAt() time.Time
+	GetIssuer() string
+	GetNotBefore() time.Time
+	GetSubject() string
+
+	SetExpireAt(time.Time)
+	SetIssuedAt(time.Time)
+	SetIssuer(string)
+	SetNotBefore(time.Time)
+
+	Decode(string) error
+	Encode(io.Writer) error
 
 	json.Marshaler
 	json.Unmarshaler
+}
+
+// A ClientUserScopes represents a Claims set which provides client and user
+// scopes.
+type ClientUserScopes interface {
+	GetScopes() []string
+	GetUserScopes() []string
 }
