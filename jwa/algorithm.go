@@ -67,15 +67,15 @@ const (
 
 	// ES256 defines an RSASSA-PSS algorithm using SHA-256 and MGF1 with
 	// SHA-256.
-	PS256 = "PS256"
+	PS256 = "PS256" // import github.com/raiqub/jose/jwa/pss
 
 	// ES384 defines an RSASSA-PSS algorithm using SHA-384 and MGF1 with
 	// SHA-384.
-	PS384 = "PS384"
+	PS384 = "PS384" // import github.com/raiqub/jose/jwa/pss
 
 	// ES384 defines an RSASSA-PSS algorithm using SHA-512 and MGF1 with
 	// SHA-512.
-	PS512 = "PS512"
+	PS512 = "PS512" // import github.com/raiqub/jose/jwa/pss
 )
 
 var algorithms = map[string]func() Algorithm{}
