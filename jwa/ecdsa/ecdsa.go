@@ -83,7 +83,7 @@ func (m *ecdsaAlg) Verify(input, signature string, key interface{}) error {
 	case *ecdsa.PublicKey:
 		ecdsaKey = k
 	case *ecdsa.PrivateKey:
-		*ecdsaKey = k.Public().(ecdsa.PublicKey)
+		ecdsaKey = k.Public().(*ecdsa.PublicKey)
 	default:
 		return jwa.ErrInvalidKey{Value: key}
 	}

@@ -84,7 +84,7 @@ func (m *rsaPKCS1Alg) Verify(input, signature string, key interface{}) error {
 	case *rsa.PublicKey:
 		rsaKey = k
 	case *rsa.PrivateKey:
-		*rsaKey = k.Public().(rsa.PublicKey)
+		rsaKey = k.Public().(*rsa.PublicKey)
 	default:
 		return jwa.ErrInvalidKey{Value: key}
 	}
