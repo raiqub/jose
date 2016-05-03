@@ -57,22 +57,22 @@ type (
 		Curve string `bson:"crv,omitempty" json:"crv,omitempty"`
 		X     string `bson:"x,omitempty" json:"x,omitempty"`
 		Y     string `bson:"y,omitempty" json:"y,omitempty"`
-		D     string `bson:"d,omitempty" json:"-"`
+		D     string `bson:"d,omitempty" json:"d,omitempty"`
 
 		// 	RSA
 
 		N       string `bson:"n,omitempty" json:"n,omitempty"`
 		E       string `bson:"e,omitempty" json:"e,omitempty"`
-		PrimeP  string `bson:"p,omitempty" json:"-"`
-		PrimeQ  string `bson:"q,omitempty" json:"-"`
-		PreDp   string `bson:"dp,omitempty" json:"-"`
-		PreDq   string `bson:"dq,omitempty" json:"-"`
-		PreQinv string `bson:"qi,omitempty" json:"-"`
-		//D       string `bson:"d,omitempty" json:"-"`
+		PrimeP  string `bson:"p,omitempty" json:"p,omitempty"`
+		PrimeQ  string `bson:"q,omitempty" json:"q,omitempty"`
+		PreDp   string `bson:"dp,omitempty" json:"dp,omitempty"`
+		PreDq   string `bson:"dq,omitempty" json:"dq,omitempty"`
+		PreQinv string `bson:"qi,omitempty" json:"qi,omitempty"`
+		//D       string `bson:"d,omitempty" json:"d,omitempty"`
 
 		// Symmetric
 
-		K string `bson:"k,omitempty" json:"-"`
+		K string `bson:"k,omitempty" json:"k,omitempty"`
 	}
 )
 

@@ -56,6 +56,11 @@ func (mj *Key) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(mj.Y))
 		buf.WriteByte(',')
 	}
+	if len(mj.D) != 0 {
+		buf.WriteString(`"d":`)
+		fflib.WriteJsonString(buf, string(mj.D))
+		buf.WriteByte(',')
+	}
 	if len(mj.N) != 0 {
 		buf.WriteString(`"n":`)
 		fflib.WriteJsonString(buf, string(mj.N))
@@ -64,6 +69,36 @@ func (mj *Key) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	if len(mj.E) != 0 {
 		buf.WriteString(`"e":`)
 		fflib.WriteJsonString(buf, string(mj.E))
+		buf.WriteByte(',')
+	}
+	if len(mj.PrimeP) != 0 {
+		buf.WriteString(`"p":`)
+		fflib.WriteJsonString(buf, string(mj.PrimeP))
+		buf.WriteByte(',')
+	}
+	if len(mj.PrimeQ) != 0 {
+		buf.WriteString(`"q":`)
+		fflib.WriteJsonString(buf, string(mj.PrimeQ))
+		buf.WriteByte(',')
+	}
+	if len(mj.PreDp) != 0 {
+		buf.WriteString(`"dp":`)
+		fflib.WriteJsonString(buf, string(mj.PreDp))
+		buf.WriteByte(',')
+	}
+	if len(mj.PreDq) != 0 {
+		buf.WriteString(`"dq":`)
+		fflib.WriteJsonString(buf, string(mj.PreDq))
+		buf.WriteByte(',')
+	}
+	if len(mj.PreQinv) != 0 {
+		buf.WriteString(`"qi":`)
+		fflib.WriteJsonString(buf, string(mj.PreQinv))
+		buf.WriteByte(',')
+	}
+	if len(mj.K) != 0 {
+		buf.WriteString(`"k":`)
+		fflib.WriteJsonString(buf, string(mj.K))
 		buf.WriteByte(',')
 	}
 	buf.Rewind(1)
@@ -89,9 +124,23 @@ const (
 
 	ffj_t_Key_Y
 
+	ffj_t_Key_D
+
 	ffj_t_Key_N
 
 	ffj_t_Key_E
+
+	ffj_t_Key_PrimeP
+
+	ffj_t_Key_PrimeQ
+
+	ffj_t_Key_PreDp
+
+	ffj_t_Key_PreDq
+
+	ffj_t_Key_PreQinv
+
+	ffj_t_Key_K
 )
 
 var ffj_key_Key_ID = []byte("kid")
@@ -108,9 +157,23 @@ var ffj_key_Key_X = []byte("x")
 
 var ffj_key_Key_Y = []byte("y")
 
+var ffj_key_Key_D = []byte("d")
+
 var ffj_key_Key_N = []byte("n")
 
 var ffj_key_Key_E = []byte("e")
+
+var ffj_key_Key_PrimeP = []byte("p")
+
+var ffj_key_Key_PrimeQ = []byte("q")
+
+var ffj_key_Key_PreDp = []byte("dp")
+
+var ffj_key_Key_PreDq = []byte("dq")
+
+var ffj_key_Key_PreQinv = []byte("qi")
+
+var ffj_key_Key_K = []byte("k")
 
 func (uj *Key) UnmarshalJSON(input []byte) error {
 	fs := fflib.NewFFLexer(input)
@@ -187,6 +250,24 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'd':
+
+					if bytes.Equal(ffj_key_Key_D, kn) {
+						currentKey = ffj_t_Key_D
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffj_key_Key_PreDp, kn) {
+						currentKey = ffj_t_Key_PreDp
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffj_key_Key_PreDq, kn) {
+						currentKey = ffj_t_Key_PreDq
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'e':
 
 					if bytes.Equal(ffj_key_Key_E, kn) {
@@ -206,12 +287,38 @@ mainparse:
 						currentKey = ffj_t_Key_Type
 						state = fflib.FFParse_want_colon
 						goto mainparse
+
+					} else if bytes.Equal(ffj_key_Key_K, kn) {
+						currentKey = ffj_t_Key_K
+						state = fflib.FFParse_want_colon
+						goto mainparse
 					}
 
 				case 'n':
 
 					if bytes.Equal(ffj_key_Key_N, kn) {
 						currentKey = ffj_t_Key_N
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'p':
+
+					if bytes.Equal(ffj_key_Key_PrimeP, kn) {
+						currentKey = ffj_t_Key_PrimeP
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
+				case 'q':
+
+					if bytes.Equal(ffj_key_Key_PrimeQ, kn) {
+						currentKey = ffj_t_Key_PrimeQ
+						state = fflib.FFParse_want_colon
+						goto mainparse
+
+					} else if bytes.Equal(ffj_key_Key_PreQinv, kn) {
+						currentKey = ffj_t_Key_PreQinv
 						state = fflib.FFParse_want_colon
 						goto mainparse
 					}
@@ -242,6 +349,42 @@ mainparse:
 
 				}
 
+				if fflib.EqualFoldRight(ffj_key_Key_K, kn) {
+					currentKey = ffj_t_Key_K
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffj_key_Key_PreQinv, kn) {
+					currentKey = ffj_t_Key_PreQinv
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffj_key_Key_PreDq, kn) {
+					currentKey = ffj_t_Key_PreDq
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffj_key_Key_PreDp, kn) {
+					currentKey = ffj_t_Key_PreDp
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffj_key_Key_PrimeQ, kn) {
+					currentKey = ffj_t_Key_PrimeQ
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffj_key_Key_PrimeP, kn) {
+					currentKey = ffj_t_Key_PrimeP
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
 				if fflib.SimpleLetterEqualFold(ffj_key_Key_E, kn) {
 					currentKey = ffj_t_Key_E
 					state = fflib.FFParse_want_colon
@@ -250,6 +393,12 @@ mainparse:
 
 				if fflib.SimpleLetterEqualFold(ffj_key_Key_N, kn) {
 					currentKey = ffj_t_Key_N
+					state = fflib.FFParse_want_colon
+					goto mainparse
+				}
+
+				if fflib.SimpleLetterEqualFold(ffj_key_Key_D, kn) {
+					currentKey = ffj_t_Key_D
 					state = fflib.FFParse_want_colon
 					goto mainparse
 				}
@@ -334,11 +483,32 @@ mainparse:
 				case ffj_t_Key_Y:
 					goto handle_Y
 
+				case ffj_t_Key_D:
+					goto handle_D
+
 				case ffj_t_Key_N:
 					goto handle_N
 
 				case ffj_t_Key_E:
 					goto handle_E
+
+				case ffj_t_Key_PrimeP:
+					goto handle_PrimeP
+
+				case ffj_t_Key_PrimeQ:
+					goto handle_PrimeQ
+
+				case ffj_t_Key_PreDp:
+					goto handle_PreDp
+
+				case ffj_t_Key_PreDq:
+					goto handle_PreDq
+
+				case ffj_t_Key_PreQinv:
+					goto handle_PreQinv
+
+				case ffj_t_Key_K:
+					goto handle_K
 
 				case ffj_t_Keyno_such_key:
 					err = fs.SkipField(tok)
@@ -536,6 +706,32 @@ handle_Y:
 	state = fflib.FFParse_after_value
 	goto mainparse
 
+handle_D:
+
+	/* handler: uj.D type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			uj.D = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
 handle_N:
 
 	/* handler: uj.N type=string kind=string quoted=false*/
@@ -581,6 +777,162 @@ handle_E:
 			outBuf := fs.Output.Bytes()
 
 			uj.E = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PrimeP:
+
+	/* handler: uj.PrimeP type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			uj.PrimeP = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PrimeQ:
+
+	/* handler: uj.PrimeQ type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			uj.PrimeQ = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PreDp:
+
+	/* handler: uj.PreDp type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			uj.PreDp = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PreDq:
+
+	/* handler: uj.PreDq type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			uj.PreDq = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_PreQinv:
+
+	/* handler: uj.PreQinv type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			uj.PreQinv = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_K:
+
+	/* handler: uj.K type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			uj.K = string(string(outBuf))
 
 		}
 	}

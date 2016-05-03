@@ -1,4 +1,5 @@
-.PHONY: all build test benchmark test-cover generate list-imports
+.PHONY: all build test benchmark test-cover test-cover-html generate list-imports
+PACKAGES = $(shell find ./ -type d -not -path '*/\.*')
 
 all: test build
 	
@@ -12,10 +13,19 @@ test:
 	go vet ./...
 
 benchmark:
-	go test -bench . -benchmem -run=^a ./... | grep "Benchmark" > bench_result.txt
+	go test -bench . -benchmem -run=^a ./... | grep "Benchmark" > stats/bench_result.txt
 
 test-cover:
-	go test -cover `go list ./... | grep -v /vendor/`
+	@go test -cover `go list ./... | grep -v /vendor/` | grep "%"
+	
+test-cover-html:
+	echo "mode: count" > coverage-all.out
+	$(foreach pkg,$(PACKAGES),\
+		go test -coverprofile=coverage.out -covermode=count $(pkg);\
+		tail -n +2 coverage.out >> coverage-all.out;)
+	go tool cover -html=coverage-all.out
+	rm -f coverage.out
+	rm -f coverage-all.out
 
 generate:
 	go generate `go list ./...`
