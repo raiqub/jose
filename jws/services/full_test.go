@@ -10,9 +10,8 @@ import (
 	"github.com/raiqub/jose/jwa"
 	"github.com/raiqub/jose/jwk"
 	"github.com/raiqub/jose/jwk/services"
+	"github.com/raiqub/jose/jws/data"
 	"github.com/raiqub/jose/jwt"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/raiqub/eval.v0"
 	"gopkg.in/raiqub/web.v0"
 
 	// Imports to initialize ECDSA, RSA-PKCS#1 and RSA-PSS algorithms
@@ -29,20 +28,10 @@ const (
 	keySize    = 2048
 )
 
-func testCreateAndValidate(
-	alg string,
-	session *mgo.Session,
-	t *testing.T,
-) {
+func testCreateAndValidate(alg string, t *testing.T) {
 	key, err := jwk.GenerateKey(alg, keySize, 1)
 	if err != nil {
 		t.Fatalf("Error generating new key: %v", err)
-	}
-
-	if err := session.DB("").
-		C(keyColName).
-		Insert(key); err != nil {
-		t.Fatalf("Error saving key to database: %v", err)
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(
@@ -52,12 +41,14 @@ func testCreateAndValidate(
 		}))
 	defer ts.Close()
 
+	dtAdapter := data.NewSignerMemory()
+	dtAdapter.Add(key.ID, key)
 	signer, err := NewSigner(Config{
 		Issuer:    issuer,
 		SetURL:    ts.URL,
 		SignKeyID: key.ID,
 		Duration:  duration,
-	}, session.DB("").C(keyColName))
+	}, dtAdapter)
 	if err != nil {
 		t.Fatalf("Error creating signer: %v", err)
 	}
@@ -91,28 +82,40 @@ func testCreateAndValidate(
 	//t.Logf("%s token: %s", alg, token)
 }
 
-func TestCreateAndValidate(t *testing.T) {
-	env := eval.PrepareMongoDBEnvironment(t)
-	if env == nil {
-		return
-	}
-	defer env.Dispose()
-	session := env.Session()
+func TestCreateAndValidateES256(t *testing.T) {
+	testCreateAndValidate(jwa.ES256, t)
+}
 
-	// ECDSA
-	testCreateAndValidate(jwa.ES256, session, t)
-	testCreateAndValidate(jwa.ES384, session, t)
-	testCreateAndValidate(jwa.ES512, session, t)
+func TestCreateAndValidateES384(t *testing.T) {
+	testCreateAndValidate(jwa.ES384, t)
+}
 
-	// RSA PKCS#1
-	testCreateAndValidate(jwa.RS256, session, t)
-	testCreateAndValidate(jwa.RS384, session, t)
-	testCreateAndValidate(jwa.RS512, session, t)
+func TestCreateAndValidateES512(t *testing.T) {
+	testCreateAndValidate(jwa.ES512, t)
+}
 
-	// RSA PSS
-	testCreateAndValidate(jwa.PS256, session, t)
-	testCreateAndValidate(jwa.PS384, session, t)
-	testCreateAndValidate(jwa.PS512, session, t)
+func TestCreateAndValidateRS256(t *testing.T) {
+	testCreateAndValidate(jwa.RS256, t)
+}
+
+func TestCreateAndValidateRS384(t *testing.T) {
+	testCreateAndValidate(jwa.RS384, t)
+}
+
+func TestCreateAndValidateRS512(t *testing.T) {
+	testCreateAndValidate(jwa.RS512, t)
+}
+
+func TestCreateAndValidatePS256(t *testing.T) {
+	testCreateAndValidate(jwa.PS256, t)
+}
+
+func TestCreateAndValidatePS384(t *testing.T) {
+	testCreateAndValidate(jwa.PS384, t)
+}
+
+func TestCreateAndValidatePS512(t *testing.T) {
+	testCreateAndValidate(jwa.PS512, t)
 }
 
 func createJWTPayload() jwt.Claims {
@@ -128,22 +131,52 @@ func createJWTPayload() jwt.Claims {
 	}
 }
 
-/*func benchmarkTokenCreation(kid string, b *testing.B) {
-	config, err := createJWTConfig()
+func benchmarkTokenCreation(alg string, b *testing.B) {
+	key, err := jwk.GenerateKey(alg, keySize, 1)
 	if err != nil {
-		b.Fatal(err)
+		b.Fatalf("Error generating new key: %v", err)
 	}
-	config.SignKeyId = kid
 
-	provider := NewSigner(*config)
-	token, err := provider.Create(createJWTContext())
+	ts := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			jwkset := jwk.Set{Keys: []jwk.Key{*key}}
+			web.JSONWrite(w, http.StatusOK, jwkset)
+		}))
+	defer ts.Close()
+
+	dtAdapter := data.NewSignerMemory()
+	dtAdapter.Add(key.ID, key)
+	signer, err := NewSigner(Config{
+		Issuer:    issuer,
+		SetURL:    ts.URL,
+		SignKeyID: key.ID,
+		Duration:  duration,
+	}, dtAdapter)
 	if err != nil {
-		b.Fatalf("Error creating token: %v", err)
+		b.Fatalf("Error creating signer: %v", err)
+	}
+
+	token, err := signer.Create(createJWTPayload())
+	if err != nil {
+		b.Errorf("Error creating token: %v", err)
+	}
+
+	if len(strings.TrimSpace(token)) == 0 {
+		b.Error("Empty token")
+	}
+
+	cliJWKSet := services.NewSetClient(ts.URL)
+	verifier, err := NewVerifier(cliJWKSet, issuer)
+	if err != nil {
+		b.Fatalf("Error creating verifier: %v", err)
+	}
+	if len(verifier.keys) == 0 {
+		b.Fatal("No keys loaded from URL")
 	}
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, err := provider.Validate(audience, token)
+		_, err := verifier.Verify(token)
 		if err != nil {
 			b.Fatalf("Error validating token: %v", err)
 		}
@@ -152,27 +185,72 @@ func createJWTPayload() jwt.Claims {
 	b.StopTimer()
 }
 
-func BenchmarkECTokenCreation(b *testing.B) {
-	benchmarkTokenCreation(eckid, b)
+func BenchmarkTokenCreationES256(b *testing.B) {
+	benchmarkTokenCreation(jwa.ES256, b)
 }
 
-func BenchmarkRSATokenCreation(b *testing.B) {
-	benchmarkTokenCreation(rsakid, b)
+func BenchmarkTokenCreationES384(b *testing.B) {
+	benchmarkTokenCreation(jwa.ES384, b)
 }
 
-func benchmarkTokenValidation(kid string, b *testing.B) {
-	config, err := createJWTConfig()
+func BenchmarkTokenCreationES512(b *testing.B) {
+	benchmarkTokenCreation(jwa.ES512, b)
+}
+
+func BenchmarkTokenCreationRS256(b *testing.B) {
+	benchmarkTokenCreation(jwa.RS256, b)
+}
+
+func BenchmarkTokenCreationRS384(b *testing.B) {
+	benchmarkTokenCreation(jwa.RS384, b)
+}
+
+func BenchmarkTokenCreationRS512(b *testing.B) {
+	benchmarkTokenCreation(jwa.RS512, b)
+}
+
+func BenchmarkTokenCreationPS256(b *testing.B) {
+	benchmarkTokenCreation(jwa.PS256, b)
+}
+
+func BenchmarkTokenCreationPS384(b *testing.B) {
+	benchmarkTokenCreation(jwa.PS384, b)
+}
+
+func BenchmarkTokenCreationPS512(b *testing.B) {
+	benchmarkTokenCreation(jwa.PS512, b)
+}
+
+func benchmarkTokenValidation(alg string, b *testing.B) {
+	key, err := jwk.GenerateKey(alg, keySize, 1)
 	if err != nil {
-		b.Fatal(err)
+		b.Fatalf("Error generating new key: %v", err)
 	}
-	config.SignKeyId = kid
 
-	provider := NewSigner(*config)
-	context := createJWTContext()
+	ts := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			jwkset := jwk.Set{Keys: []jwk.Key{*key}}
+			web.JSONWrite(w, http.StatusOK, jwkset)
+		}))
+	defer ts.Close()
+
+	dtAdapter := data.NewSignerMemory()
+	dtAdapter.Add(key.ID, key)
+	signer, err := NewSigner(Config{
+		Issuer:    issuer,
+		SetURL:    ts.URL,
+		SignKeyID: key.ID,
+		Duration:  duration,
+	}, dtAdapter)
+	if err != nil {
+		b.Fatalf("Error creating signer: %v", err)
+	}
+
+	payload := createJWTPayload()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, err := provider.Create(context)
+		_, err := signer.Create(payload)
 		if err != nil {
 			b.Fatalf("Error creating token: %v", err)
 		}
@@ -181,10 +259,38 @@ func benchmarkTokenValidation(kid string, b *testing.B) {
 	b.StopTimer()
 }
 
-func BenchmarkTokenECValidation(b *testing.B) {
-	benchmarkTokenValidation(eckid, b)
+func BenchmarkTokenValidationES256(b *testing.B) {
+	benchmarkTokenValidation(jwa.ES256, b)
 }
 
-func BenchmarkTokenRSAValidation(b *testing.B) {
-	benchmarkTokenValidation(rsakid, b)
-}*/
+func BenchmarkTokenValidationES384(b *testing.B) {
+	benchmarkTokenValidation(jwa.ES384, b)
+}
+
+func BenchmarkTokenValidationES512(b *testing.B) {
+	benchmarkTokenValidation(jwa.ES512, b)
+}
+
+func BenchmarkTokenValidationRS256(b *testing.B) {
+	benchmarkTokenValidation(jwa.RS256, b)
+}
+
+func BenchmarkTokenValidationRS384(b *testing.B) {
+	benchmarkTokenValidation(jwa.RS384, b)
+}
+
+func BenchmarkTokenValidationRS512(b *testing.B) {
+	benchmarkTokenValidation(jwa.RS512, b)
+}
+
+func BenchmarkTokenValidationPS256(b *testing.B) {
+	benchmarkTokenValidation(jwa.PS256, b)
+}
+
+func BenchmarkTokenValidationPS384(b *testing.B) {
+	benchmarkTokenValidation(jwa.PS384, b)
+}
+
+func BenchmarkTokenValidationPS512(b *testing.B) {
+	benchmarkTokenValidation(jwa.PS512, b)
+}
