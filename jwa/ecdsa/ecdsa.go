@@ -42,24 +42,33 @@ type ecdsaAlg struct {
 }
 
 func init() {
-	jwa.RegisterAlgorithm(jwa.ES256, func() jwa.Algorithm {
-		return &ecdsaAlg{
-			func() hash.Hash { return sha256.New() },
-			32, 256,
-		}
-	})
-	jwa.RegisterAlgorithm(jwa.ES384, func() jwa.Algorithm {
-		return &ecdsaAlg{
-			func() hash.Hash { return sha512.New384() },
-			48, 384,
-		}
-	})
-	jwa.RegisterAlgorithm(jwa.ES512, func() jwa.Algorithm {
-		return &ecdsaAlg{
-			func() hash.Hash { return sha512.New() },
-			66, 521,
-		}
-	})
+	jwa.RegisterAlgorithm(jwa.ES256, New256)
+	jwa.RegisterAlgorithm(jwa.ES384, New384)
+	jwa.RegisterAlgorithm(jwa.ES512, New512)
+}
+
+// New256 returns a new ES256 cryptographic algorithm.
+func New256() jwa.Algorithm {
+	return &ecdsaAlg{
+		func() hash.Hash { return sha256.New() },
+		32, 256,
+	}
+}
+
+// New384 returns a new ES384 cryptographic algorithm.
+func New384() jwa.Algorithm {
+	return &ecdsaAlg{
+		func() hash.Hash { return sha512.New384() },
+		48, 384,
+	}
+}
+
+// New512 returns a new ES512 cryptographic algorithm.
+func New512() jwa.Algorithm {
+	return &ecdsaAlg{
+		func() hash.Hash { return sha512.New() },
+		66, 521,
+	}
 }
 
 // Implements the Verify method from SigningMethod

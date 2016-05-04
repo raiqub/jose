@@ -43,36 +43,45 @@ type rsaPSSAlg struct {
 }
 
 func init() {
-	jwa.RegisterAlgorithm(jwa.PS256, func() jwa.Algorithm {
-		return &rsaPSSAlg{
-			crypto.SHA256,
-			func() hash.Hash { return sha256.New() },
-			&rsa.PSSOptions{
-				SaltLength: rsa.PSSSaltLengthAuto,
-				Hash:       crypto.SHA256,
-			},
-		}
-	})
-	jwa.RegisterAlgorithm(jwa.PS384, func() jwa.Algorithm {
-		return &rsaPSSAlg{
-			crypto.SHA384,
-			func() hash.Hash { return sha512.New384() },
-			&rsa.PSSOptions{
-				SaltLength: rsa.PSSSaltLengthAuto,
-				Hash:       crypto.SHA384,
-			},
-		}
-	})
-	jwa.RegisterAlgorithm(jwa.PS512, func() jwa.Algorithm {
-		return &rsaPSSAlg{
-			crypto.SHA512,
-			func() hash.Hash { return sha512.New() },
-			&rsa.PSSOptions{
-				SaltLength: rsa.PSSSaltLengthAuto,
-				Hash:       crypto.SHA512,
-			},
-		}
-	})
+	jwa.RegisterAlgorithm(jwa.PS256, New256)
+	jwa.RegisterAlgorithm(jwa.PS384, New384)
+	jwa.RegisterAlgorithm(jwa.PS512, New512)
+}
+
+// New256 returns a new PS256 cryptographic algorithm.
+func New256() jwa.Algorithm {
+	return &rsaPSSAlg{
+		crypto.SHA256,
+		func() hash.Hash { return sha256.New() },
+		&rsa.PSSOptions{
+			SaltLength: rsa.PSSSaltLengthAuto,
+			Hash:       crypto.SHA256,
+		},
+	}
+}
+
+// New384 returns a new PS384 cryptographic algorithm.
+func New384() jwa.Algorithm {
+	return &rsaPSSAlg{
+		crypto.SHA384,
+		func() hash.Hash { return sha512.New384() },
+		&rsa.PSSOptions{
+			SaltLength: rsa.PSSSaltLengthAuto,
+			Hash:       crypto.SHA384,
+		},
+	}
+}
+
+// New512 returns a new PS512 cryptographic algorithm.
+func New512() jwa.Algorithm {
+	return &rsaPSSAlg{
+		crypto.SHA512,
+		func() hash.Hash { return sha512.New() },
+		&rsa.PSSOptions{
+			SaltLength: rsa.PSSSaltLengthAuto,
+			Hash:       crypto.SHA512,
+		},
+	}
 }
 
 // Implements the Verify method from SigningMethod

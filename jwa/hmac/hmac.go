@@ -39,17 +39,24 @@ type hmacAlg struct {
 }
 
 func init() {
-	jwa.RegisterAlgorithm(jwa.HS256, func() jwa.Algorithm {
-		return &hmacAlg{func() hash.Hash { return sha256.New() }}
-	})
+	jwa.RegisterAlgorithm(jwa.HS256, New256)
+	jwa.RegisterAlgorithm(jwa.HS384, New384)
+	jwa.RegisterAlgorithm(jwa.HS512, New512)
+}
 
-	jwa.RegisterAlgorithm(jwa.HS384, func() jwa.Algorithm {
-		return &hmacAlg{func() hash.Hash { return sha512.New384() }}
-	})
+// New256 returns a new HS256 cryptographic algorithm.
+func New256() jwa.Algorithm {
+	return &hmacAlg{func() hash.Hash { return sha256.New() }}
+}
 
-	jwa.RegisterAlgorithm(jwa.HS512, func() jwa.Algorithm {
-		return &hmacAlg{func() hash.Hash { return sha512.New() }}
-	})
+// New384 returns a new HS384 cryptographic algorithm.
+func New384() jwa.Algorithm {
+	return &hmacAlg{func() hash.Hash { return sha512.New384() }}
+}
+
+// New512 returns a new HS512 cryptographic algorithm.
+func New512() jwa.Algorithm {
+	return &hmacAlg{func() hash.Hash { return sha512.New() }}
 }
 
 func (m *hmacAlg) Verify(input, signature string, key interface{}) error {

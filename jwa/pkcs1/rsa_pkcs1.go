@@ -42,24 +42,33 @@ type rsaPKCS1Alg struct {
 }
 
 func init() {
-	jwa.RegisterAlgorithm(jwa.RS256, func() jwa.Algorithm {
-		return &rsaPKCS1Alg{
-			crypto.SHA256,
-			func() hash.Hash { return sha256.New() },
-		}
-	})
-	jwa.RegisterAlgorithm(jwa.RS384, func() jwa.Algorithm {
-		return &rsaPKCS1Alg{
-			crypto.SHA384,
-			func() hash.Hash { return sha512.New384() },
-		}
-	})
-	jwa.RegisterAlgorithm(jwa.RS512, func() jwa.Algorithm {
-		return &rsaPKCS1Alg{
-			crypto.SHA512,
-			func() hash.Hash { return sha512.New() },
-		}
-	})
+	jwa.RegisterAlgorithm(jwa.RS256, New256)
+	jwa.RegisterAlgorithm(jwa.RS384, New384)
+	jwa.RegisterAlgorithm(jwa.RS512, New512)
+}
+
+// New256 returns a new RS256 cryptographic algorithm.
+func New256() jwa.Algorithm {
+	return &rsaPKCS1Alg{
+		crypto.SHA256,
+		func() hash.Hash { return sha256.New() },
+	}
+}
+
+// New384 returns a new RS384 cryptographic algorithm.
+func New384() jwa.Algorithm {
+	return &rsaPKCS1Alg{
+		crypto.SHA384,
+		func() hash.Hash { return sha512.New384() },
+	}
+}
+
+// New512 returns a new RS512 cryptographic algorithm.
+func New512() jwa.Algorithm {
+	return &rsaPKCS1Alg{
+		crypto.SHA512,
+		func() hash.Hash { return sha512.New() },
+	}
 }
 
 // Implements the Verify method from SigningMethod

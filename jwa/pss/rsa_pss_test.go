@@ -71,9 +71,10 @@ var rsaPSSTestData = []struct {
 }
 
 func TestRSAPSSVerify(t *testing.T) {
-	key, _ := ioutil.ReadFile(pubKeyFile)
+	keyPub, _ := ioutil.ReadFile(pubKeyFile)
+	keyPrv, _ := ioutil.ReadFile(privKeyFile)
 
-	for _, data := range rsaPSSTestData {
+	for i, data := range rsaPSSTestData {
 		method, err := jwa.New(data.alg)
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
@@ -85,6 +86,10 @@ func TestRSAPSSVerify(t *testing.T) {
 		input := data.tokenString[:lastDotIdx]
 		signature := data.tokenString[lastDotIdx+1:]
 
+		key := keyPub
+		if i%2 == 0 {
+			key = keyPrv
+		}
 		err = method.Verify(input, signature, key)
 		if data.valid && err != nil {
 			t.Errorf("[%s] Error while verifying key: %v", data.name, err)

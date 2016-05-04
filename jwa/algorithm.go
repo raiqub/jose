@@ -17,8 +17,8 @@
 
 package jwa
 
-// Algorithm represents a code for cryptographic algorithm to digitally
-// sign or create a MAC of the input data.
+// Algorithm represents a cryptographic algorithm to digitally sign or create a MAC of
+// the input data.
 type Algorithm interface {
 	// Verify whether a signature matches the input data.
 	Verify(input, signature string, key interface{}) error

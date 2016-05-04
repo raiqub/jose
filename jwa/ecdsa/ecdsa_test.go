@@ -75,7 +75,7 @@ var ecdsaTestData = []struct {
 }
 
 func TestECDSAVerify(t *testing.T) {
-	for _, data := range ecdsaTestData {
+	for i, data := range ecdsaTestData {
 		method, err := jwa.New(data.alg)
 		if err != nil {
 			t.Errorf("[%s] Error while loading algorithm method: %v",
@@ -83,7 +83,11 @@ func TestECDSAVerify(t *testing.T) {
 			continue
 		}
 
-		key, _ := ioutil.ReadFile(data.publicKey)
+		filename := data.publicKey
+		if i%2 == 0 {
+			filename = data.privateKey
+		}
+		key, _ := ioutil.ReadFile(filename)
 		lastDotIdx := strings.LastIndex(data.tokenString, ".")
 		input := data.tokenString[:lastDotIdx]
 		signature := data.tokenString[lastDotIdx+1:]
