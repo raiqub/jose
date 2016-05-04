@@ -14,33 +14,5 @@
  * limitations under the License.
  */
 
-package data
-
-import (
-	"github.com/raiqub/jose/jwk"
-	"gopkg.in/mgo.v2"
-)
-
-// A SignerMongo represents a MongoDB data adapter for Signer service.
-type SignerMongo struct {
-	col *mgo.Collection
-}
-
-// NewSignerMongo creates a new instance of SignerMongo.
-func NewSignerMongo(col *mgo.Collection) *SignerMongo {
-	return &SignerMongo{
-		col,
-	}
-}
-
-// GetKey returns a key which matchs specified identifier.
-func (s *SignerMongo) GetKey(id string) (*jwk.Key, error) {
-	var dbKey jwk.Key
-	if err := s.col.
-		FindId(id).
-		One(&dbKey); err != nil {
-		return nil, err
-	}
-
-	return &dbKey, nil
-}
+// Package adapters implements adapters for JWK data.
+package adapters

@@ -22,6 +22,7 @@ import (
 	jwkservices "github.com/raiqub/jose/jwk/services"
 	"github.com/raiqub/jose/jws"
 	"github.com/raiqub/jose/jwt"
+	"github.com/raiqub/tlog"
 	"gopkg.in/raiqub/dot.v1"
 )
 
@@ -34,9 +35,10 @@ type Verifier struct {
 // NewVerifier creates a new instance of Verifier service.
 func NewVerifier(
 	svcJWKSet jwkservices.SetService,
+	tracer tlog.Tracer,
 	issuer string,
 ) (*Verifier, error) {
-	jwkset, jerr := svcJWKSet.GetCerts()
+	jwkset, jerr := svcJWKSet.GetCerts(tracer)
 	if jerr != nil {
 		// TODO proper error type
 		return nil, errors.New(jerr.Type + ": " + jerr.Message)

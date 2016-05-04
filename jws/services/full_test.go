@@ -9,9 +9,10 @@ import (
 
 	"github.com/raiqub/jose/jwa"
 	"github.com/raiqub/jose/jwk"
+	"github.com/raiqub/jose/jwk/adapters"
 	"github.com/raiqub/jose/jwk/services"
-	"github.com/raiqub/jose/jws/data"
 	"github.com/raiqub/jose/jwt"
+	"github.com/raiqub/tlog"
 	"gopkg.in/raiqub/web.v0"
 
 	// Imports to initialize ECDSA, RSA-PKCS#1 and RSA-PSS algorithms
@@ -41,14 +42,14 @@ func testCreateAndValidate(alg string, t *testing.T) {
 		}))
 	defer ts.Close()
 
-	dtAdapter := data.NewSignerMemory()
-	dtAdapter.Add(key.ID, key)
-	signer, err := NewSigner(Config{
+	adpSet := adapters.NewSetMemory()
+	adpSet.Add(*key)
+	signer, err := NewSigner(adpSet, Config{
 		Issuer:    issuer,
 		SetURL:    ts.URL,
 		SignKeyID: key.ID,
 		Duration:  duration,
-	}, dtAdapter)
+	})
 	if err != nil {
 		t.Fatalf("Error creating signer: %v", err)
 	}
@@ -63,7 +64,7 @@ func testCreateAndValidate(alg string, t *testing.T) {
 	}
 
 	cliJWKSet := services.NewSetClient(ts.URL)
-	verifier, err := NewVerifier(cliJWKSet, issuer)
+	verifier, err := NewVerifier(cliJWKSet, tlog.NewTracerNop(), issuer)
 	if err != nil {
 		t.Fatalf("Error creating verifier: %v", err)
 	}
@@ -144,14 +145,14 @@ func benchmarkTokenCreation(alg string, b *testing.B) {
 		}))
 	defer ts.Close()
 
-	dtAdapter := data.NewSignerMemory()
-	dtAdapter.Add(key.ID, key)
-	signer, err := NewSigner(Config{
+	adpSet := adapters.NewSetMemory()
+	adpSet.Add(*key)
+	signer, err := NewSigner(adpSet, Config{
 		Issuer:    issuer,
 		SetURL:    ts.URL,
 		SignKeyID: key.ID,
 		Duration:  duration,
-	}, dtAdapter)
+	})
 	if err != nil {
 		b.Fatalf("Error creating signer: %v", err)
 	}
@@ -166,7 +167,7 @@ func benchmarkTokenCreation(alg string, b *testing.B) {
 	}
 
 	cliJWKSet := services.NewSetClient(ts.URL)
-	verifier, err := NewVerifier(cliJWKSet, issuer)
+	verifier, err := NewVerifier(cliJWKSet, tlog.NewTracerNop(), issuer)
 	if err != nil {
 		b.Fatalf("Error creating verifier: %v", err)
 	}
@@ -234,14 +235,14 @@ func benchmarkTokenValidation(alg string, b *testing.B) {
 		}))
 	defer ts.Close()
 
-	dtAdapter := data.NewSignerMemory()
-	dtAdapter.Add(key.ID, key)
-	signer, err := NewSigner(Config{
+	adpSet := adapters.NewSetMemory()
+	adpSet.Add(*key)
+	signer, err := NewSigner(adpSet, Config{
 		Issuer:    issuer,
 		SetURL:    ts.URL,
 		SignKeyID: key.ID,
 		Duration:  duration,
-	}, dtAdapter)
+	})
 	if err != nil {
 		b.Fatalf("Error creating signer: %v", err)
 	}

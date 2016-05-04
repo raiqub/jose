@@ -13,7 +13,7 @@ test:
 	go vet ./...
 
 benchmark:
-	go test -bench . -benchmem -run=^a ./... | grep "Benchmark" > stats/bench_result.txt
+	go test -bench . -benchmem -run=^a ./... | grep "Benchmark" > bench_result.txt
 
 test-cover:
 	@go test -cover `go list ./... | grep -v /vendor/` | grep "%"

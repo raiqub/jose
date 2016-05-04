@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package data
+package adapters
 
 import (
 	"errors"
@@ -22,29 +22,46 @@ import (
 	"github.com/raiqub/jose/jwk"
 )
 
-// A SignerMemory represents an in-memory data adapter for Signer service.
-type SignerMemory struct {
-	keys map[string]*jwk.Key
+// ErrKeyNotFound defines an error when requested key was not found.
+var ErrKeyNotFound = errors.New("Key not found")
+
+// A SetMemory represents an in-memory data adapter for JWK key set.
+type SetMemory struct {
+	keys map[string]jwk.Key
 }
 
-// NewSignerMemory creates a new instance of SignerMemory.
-func NewSignerMemory() *SignerMemory {
-	return &SignerMemory{
-		make(map[string]*jwk.Key, 0),
+// NewSetMemory creates a new instance of SetMemory.
+func NewSetMemory() *SetMemory {
+	return &SetMemory{
+		make(map[string]jwk.Key, 0),
 	}
 }
 
 // Add a new key to current data adapter.
-func (s *SignerMemory) Add(id string, key *jwk.Key) {
-	s.keys[id] = key
+func (s *SetMemory) Add(key jwk.Key) {
+	s.keys[key.ID] = key
 }
 
-// GetKey returns a key which matchs specified identifier.
-func (s *SignerMemory) GetKey(id string) (*jwk.Key, error) {
+// All returns all keys.
+func (s *SetMemory) All() (*jwk.Set, error) {
+	var keys []jwk.Key
+	for _, k := range s.keys {
+		keys = append(keys, k)
+	}
+
+	return &jwk.Set{
+		Keys: keys,
+	}, nil
+}
+
+// ByID returns a key by its identifier.
+func (s *SetMemory) ByID(id string) (*jwk.Key, error) {
 	res, ok := s.keys[id]
 	if !ok {
 		return nil, errors.New("Key not found")
 	}
 
-	return res, nil
+	return &res, nil
 }
+
+var _ Set = (*SetMemory)(nil)

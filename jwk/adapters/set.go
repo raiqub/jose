@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package services
+package adapters
 
-import (
-	"github.com/raiqub/jose/jwk"
-	"github.com/raiqub/tlog"
-	"gopkg.in/raiqub/web.v0"
-)
+import "github.com/raiqub/jose/jwk"
 
-// A SetService defines an interface for a service that provides the key set
-// used for signing or encrypting session tokens.
-type SetService interface {
-	GetCerts(tlog.Tracer) (*jwk.Set, *web.JSONError)
+// A Set represents a data adapter for JWK key set.
+type Set interface {
+	// All returns all keys.
+	All() (*jwk.Set, error)
+
+	// ByID returns a key by its identifier.
+	ByID(string) (*jwk.Key, error)
 }

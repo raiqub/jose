@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package data
+package services
 
-import "github.com/raiqub/jose/jwk"
+// An ErrInvalidBody represents an error when body content cannot be decoded.
+type ErrInvalidBody string
 
-// A Signer represents a data adapter for Signer service.
-type Signer interface {
-	// GetKey returns a key which matchs specified identifier.
-	GetKey(string) (*jwk.Key, error)
+// Error returns string representation of current instance error.
+func (e ErrInvalidBody) Error() string {
+	return "Error trying to decode body content"
 }

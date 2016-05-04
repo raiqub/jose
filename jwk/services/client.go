@@ -21,6 +21,7 @@ import (
 
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/raiqub/jose/jwk"
+	"github.com/raiqub/tlog"
 	"gopkg.in/raiqub/web.v0"
 )
 
@@ -38,9 +39,17 @@ func NewSetClient(url string) *SetClient {
 }
 
 // GetCerts returns the key set from the service.
-func (c *SetClient) GetCerts() (*jwk.Set, *web.JSONError) {
+func (c *SetClient) GetCerts(tracer tlog.Tracer) (*jwk.Set, *web.JSONError) {
+	if tracer == nil {
+		tracer = tlog.NewTracerNop()
+	}
+
 	resp, err := http.Get(c.url)
 	if err != nil {
+		tracer.AddEntry(
+			tlog.LevelError, "http_error", "HTTP protocol error",
+			http.StatusServiceUnavailable, err,
+			"SetClient", "GetCerts", "http.Get")
 		jerr := web.NewJSONError().FromError(err).Build()
 		return nil, &jerr
 	}
@@ -50,9 +59,17 @@ func (c *SetClient) GetCerts() (*jwk.Set, *web.JSONError) {
 		var jerr web.JSONError
 		if err := ffjson.NewDecoder().
 			DecodeReader(resp.Body, &jerr); err != nil {
+			tracer.AddEntry(
+				tlog.LevelError, "invalid_body", "Invalid body content",
+				http.StatusServiceUnavailable, err,
+				"SetClient", "GetCerts", "status>=400", "DecodeReader")
 			jerr = web.NewJSONError().FromError(err).Build()
 		}
 
+		tracer.AddEntry(
+			tlog.LevelWarn, "response_error", "Service returned error",
+			http.StatusServiceUnavailable, nil,
+			"SetClient", "GetCerts", "status>=400")
 		return nil, &jerr
 	}
 

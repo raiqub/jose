@@ -19,21 +19,21 @@ package services
 import (
 	"time"
 
+	"github.com/raiqub/jose/jwk/adapters"
 	"github.com/raiqub/jose/jws"
-	"github.com/raiqub/jose/jws/data"
 	"github.com/raiqub/jose/jwt"
 )
 
 // A Signer represents a service which provides token creation and signing.
 type Signer struct {
-	dtAdapter data.Signer
-	config    Config
-	keyCache  Cache
+	adpSet   adapters.Set
+	config   Config
+	keyCache Cache
 }
 
 // NewSigner creates a new instance of Signer service.
-func NewSigner(config Config, dt data.Signer) (*Signer, error) {
-	dbKey, err := dt.GetKey(config.SignKeyID)
+func NewSigner(adpSet adapters.Set, config Config) (*Signer, error) {
+	dbKey, err := adpSet.ByID(config.SignKeyID)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func NewSigner(config Config, dt data.Signer) (*Signer, error) {
 	}
 
 	return &Signer{
-		dt,
+		adpSet,
 		config,
 		Cache{*dbKey, rawKey},
 	}, nil
