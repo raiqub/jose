@@ -22,7 +22,6 @@ import (
 	"github.com/raiqub/jose/jwk"
 	"github.com/raiqub/jose/jwk/adapters"
 	"github.com/raiqub/tlog"
-	"gopkg.in/raiqub/web.v0"
 )
 
 // A SetServer represents a server which provides the key set used for signing or
@@ -39,15 +38,14 @@ func NewSetServer(adpSet adapters.Set) *SetServer {
 }
 
 // GetCerts returns entire key set.
-func (s *SetServer) GetCerts(tracer tlog.Tracer) (*jwk.Set, *web.JSONError) {
+func (s *SetServer) GetCerts(tracer tlog.Tracer) (*jwk.Set, error) {
 	keys, err := s.adpSet.All()
 	if err != nil {
 		tracer.AddEntry(
 			tlog.LevelError, "query_error", "Error querying for JWK keys",
 			http.StatusInternalServerError, err,
 			"SetServer", "Set.All")
-		jerr := web.NewJSONError().FromError(err).Build()
-		return nil, &jerr
+		return nil, err
 	}
 
 	return keys, nil

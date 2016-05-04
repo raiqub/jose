@@ -19,11 +19,10 @@ package services
 import (
 	"github.com/raiqub/jose/jwk"
 	"github.com/raiqub/tlog"
-	"gopkg.in/raiqub/web.v0"
 )
 
 // A SetService defines an interface for a service that provides the key set
 // used for signing or encrypting session tokens.
 type SetService interface {
-	GetCerts(tlog.Tracer) (*jwk.Set, *web.JSONError)
+	GetCerts(tlog.Tracer) (*jwk.Set, error)
 }

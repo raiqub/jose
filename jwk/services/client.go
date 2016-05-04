@@ -22,7 +22,6 @@ import (
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/raiqub/jose/jwk"
 	"github.com/raiqub/tlog"
-	"gopkg.in/raiqub/web.v0"
 )
 
 // A SetClient represents a client for a service that provides the key set used
@@ -39,7 +38,7 @@ func NewSetClient(url string) *SetClient {
 }
 
 // GetCerts returns the key set from the service.
-func (c *SetClient) GetCerts(tracer tlog.Tracer) (*jwk.Set, *web.JSONError) {
+func (c *SetClient) GetCerts(tracer tlog.Tracer) (*jwk.Set, error) {
 	if tracer == nil {
 		tracer = tlog.NewTracerNop()
 	}
@@ -50,34 +49,36 @@ func (c *SetClient) GetCerts(tracer tlog.Tracer) (*jwk.Set, *web.JSONError) {
 			tlog.LevelError, "http_error", "HTTP protocol error",
 			http.StatusServiceUnavailable, err,
 			"SetClient", "GetCerts", "http.Get")
-		jerr := web.NewJSONError().FromError(err).Build()
-		return nil, &jerr
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		var jerr web.JSONError
+		var tEntry tlog.TracerEntry
 		if err := ffjson.NewDecoder().
-			DecodeReader(resp.Body, &jerr); err != nil {
+			DecodeReader(resp.Body, &tEntry); err != nil {
 			tracer.AddEntry(
 				tlog.LevelError, "invalid_body", "Invalid body content",
 				http.StatusServiceUnavailable, err,
 				"SetClient", "GetCerts", "status>=400", "DecodeReader")
-			jerr = web.NewJSONError().FromError(err).Build()
+			return nil, err
 		}
 
 		tracer.AddEntry(
 			tlog.LevelWarn, "response_error", "Service returned error",
-			http.StatusServiceUnavailable, nil,
+			http.StatusServiceUnavailable, &tEntry,
 			"SetClient", "GetCerts", "status>=400")
-		return nil, &jerr
+		return nil, &tEntry
 	}
 
 	var keyset jwk.Set
 	if err := ffjson.NewDecoder().
 		DecodeReader(resp.Body, &keyset); err != nil {
-		jerr := web.NewJSONError().FromError(err).Build()
-		return nil, &jerr
+		tracer.AddEntry(
+			tlog.LevelError, "invalid_body", "Invalid body content",
+			http.StatusServiceUnavailable, err,
+			"SetClient", "GetCerts", "status<400", "DecodeReader")
+		return nil, err
 	}
 
 	return &keyset, nil

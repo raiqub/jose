@@ -17,8 +17,6 @@
 package services
 
 import (
-	"errors"
-
 	jwkservices "github.com/raiqub/jose/jwk/services"
 	"github.com/raiqub/jose/jws"
 	"github.com/raiqub/jose/jwt"
@@ -38,10 +36,10 @@ func NewVerifier(
 	tracer tlog.Tracer,
 	issuer string,
 ) (*Verifier, error) {
-	jwkset, jerr := svcJWKSet.GetCerts(tracer)
-	if jerr != nil {
+	jwkset, err := svcJWKSet.GetCerts(tracer)
+	if err != nil {
 		// TODO proper error type
-		return nil, errors.New(jerr.Type + ": " + jerr.Message)
+		return nil, err
 	}
 
 	result := &Verifier{
