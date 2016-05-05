@@ -1,8 +1,11 @@
 package services
 
 import (
+	"flag"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -13,6 +16,7 @@ import (
 	"github.com/raiqub/jose/jwk/services"
 	"github.com/raiqub/jose/jwt"
 	"github.com/raiqub/tlog"
+	"gopkg.in/raiqub/eval.v0"
 	"gopkg.in/raiqub/web.v0"
 
 	// Imports to initialize ECDSA, RSA-PKCS#1 and RSA-PSS algorithms
@@ -29,6 +33,35 @@ const (
 	keySize    = 2048
 )
 
+var adpSet adapters.Set
+
+func TestMain(m *testing.M) {
+	var mgoenv *eval.MongoDBEnvironment
+	intTestEnabled := flag.Bool("integration", false, "Enable integration testing")
+	flag.Parse()
+
+	if *intTestEnabled {
+		var err *eval.ErrUser
+		mgoenv, err = eval.PrepareMongoDBEnvironment()
+		if err != nil {
+			fmt.Println(err.Message)
+			os.Exit(1)
+		}
+
+		adpSet = adapters.NewSetMongo(
+			mgoenv.Session().DB("").C("keys"))
+	} else {
+		adpSet = adapters.NewSetMemory()
+	}
+
+	res := m.Run()
+	if mgoenv != nil {
+		mgoenv.Dispose()
+	}
+
+	os.Exit(res)
+}
+
 func testCreateAndValidate(alg string, t *testing.T) {
 	key, err := jwk.GenerateKey(alg, keySize, 1)
 	if err != nil {
@@ -42,7 +75,6 @@ func testCreateAndValidate(alg string, t *testing.T) {
 		}))
 	defer ts.Close()
 
-	adpSet := adapters.NewSetMemory()
 	adpSet.Add(*key)
 	signer, err := NewSigner(adpSet, Config{
 		Issuer:    issuer,
@@ -64,7 +96,7 @@ func testCreateAndValidate(alg string, t *testing.T) {
 	}
 
 	cliJWKSet := services.NewSetClient(ts.URL)
-	verifier, err := NewVerifier(cliJWKSet, tlog.NewTracerNop(), issuer)
+	verifier, err := NewVerifier(cliJWKSet, nil, issuer)
 	if err != nil {
 		t.Fatalf("Error creating verifier: %v", err)
 	}

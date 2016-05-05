@@ -1,4 +1,4 @@
-.PHONY: all build test benchmark test-cover test-cover-html generate list-imports
+.PHONY: all build test test-integration benchmark test-cover test-cover-html generate list-imports
 PACKAGES = $(shell find ./ -type d -not -path '*/\.*')
 
 all: test build
@@ -11,6 +11,9 @@ test:
 	test -z "`gofmt -s -l -w . | tee /dev/stderr`"
 	test -z "`golint ./... | grep -v ffjson | tee /dev/stderr`"
 	go vet ./...
+
+test-integration:
+	go test -v ./jws/services -integration
 
 benchmark:
 	go test -bench . -benchmem -run=^a ./... | grep "Benchmark" > bench_result.txt

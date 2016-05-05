@@ -1,3 +1,4 @@
+sudo: required
 language: go
 
 go:
@@ -11,6 +12,12 @@ matrix:
     - go: tip
     - go: 1.4
 
+services:
+  - docker
+
+before_install:
+- docker pull mongo
+
 before_script:
   - go get -u github.com/golang/lint/golint
   - go get -u github.com/axw/gocov/gocov
@@ -19,7 +26,5 @@ before_script:
 
 script:
   - go get -v -t ./...
-  - go test -v ./...
-  - test -z "$(gofmt -s -l -w . | tee /dev/stderr)"
-  - test -z "$(golint ./... | grep -v ffjson | tee /dev/stderr)"
-  - go vet ./...
+  - make test
+  - make test-integration

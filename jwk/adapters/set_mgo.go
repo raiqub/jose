@@ -36,6 +36,11 @@ func NewSetMongo(col *mgo.Collection) *SetMongo {
 	}
 }
 
+// Add a new key to database.
+func (s *SetMongo) Add(key jwk.Key) error {
+	return s.col.Insert(key)
+}
+
 // All returns all keys.
 func (s *SetMongo) All() (*jwk.Set, error) {
 	var keys []jwk.Key

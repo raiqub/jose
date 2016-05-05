@@ -36,6 +36,10 @@ func NewVerifier(
 	tracer tlog.Tracer,
 	issuer string,
 ) (*Verifier, error) {
+	if tracer == nil {
+		tracer = tlog.NewTracerNop()
+	}
+
 	jwkset, err := svcJWKSet.GetCerts(tracer)
 	if err != nil {
 		// TODO proper error type

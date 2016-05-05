@@ -20,6 +20,9 @@ import "github.com/raiqub/jose/jwk"
 
 // A Set represents a data adapter for JWK key set.
 type Set interface {
+	// Add a new key.
+	Add(jwk.Key) error
+
 	// All returns all keys.
 	All() (*jwk.Set, error)
 

@@ -38,8 +38,9 @@ func NewSetMemory() *SetMemory {
 }
 
 // Add a new key to current data adapter.
-func (s *SetMemory) Add(key jwk.Key) {
+func (s *SetMemory) Add(key jwk.Key) error {
 	s.keys[key.ID] = key
+	return nil
 }
 
 // All returns all keys.
