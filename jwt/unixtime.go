@@ -27,6 +27,11 @@ func NewUnixTime(dt time.Time) UnixTime {
 	return UnixTime(dt.Unix())
 }
 
+// ToInt64 returns current instant in time as 64-bit integer.
+func (ut UnixTime) ToInt64() int64 {
+	return int64(ut)
+}
+
 // ToTime returns a Time instance that represents same instant in time of
 // current instance.
 func (ut UnixTime) ToTime() time.Time {

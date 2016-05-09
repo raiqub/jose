@@ -147,7 +147,12 @@ func (t *SignedToken) EncodeAndSign(key interface{}) (string, error) {
 	return buf.String(), nil
 }
 
-// Validate returns whether current token headers is valid.
+// Validate returns whether current token header and payload is valid.
 func (t *SignedToken) Validate() bool {
-	return jwa.Available(t.Header.GetAlgorithm())
+	if !jwa.Available(t.Header.GetAlgorithm()) ||
+		t.Payload == nil {
+		return false
+	}
+
+	return t.Payload.Validate()
 }

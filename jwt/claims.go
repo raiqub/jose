@@ -39,6 +39,7 @@ type Claims interface {
 
 	Decode(string) error
 	Encode(io.Writer) error
+	Validate() bool
 
 	json.Marshaler
 	json.Unmarshaler

@@ -139,4 +139,31 @@ func (p *CommonClaims) Encode(w io.Writer) error {
 	return nil
 }
 
+// Validate returns whether current claims are valid.
+func (p *CommonClaims) Validate() bool {
+	now := time.Now().Unix()
+	exp := p.ExpireAt.ToInt64()
+	nbf := p.NotBefore.ToInt64()
+	iat := p.IssuedAt.ToInt64()
+
+	// Enforce use of exp claim
+	if exp == 0 || now > exp {
+		return false
+	}
+
+	// Reject invalid values
+	if exp < 0 || nbf < 0 || iat < 0 ||
+		exp < nbf || exp < iat {
+		return false
+	}
+	if nbf > 0 && nbf > now {
+		return false
+	}
+	if nbf > 0 && iat > 0 && iat > nbf {
+		return false
+	}
+
+	return true
+}
+
 var _ Claims = (*CommonClaims)(nil)
