@@ -21,20 +21,20 @@ import (
 	"github.com/raiqub/jose/jws"
 	"github.com/raiqub/jose/jwt"
 	"github.com/raiqub/tlog"
-	"gopkg.in/raiqub/dot.v1"
+	"gopkg.in/raiqub/slice.v1"
 )
 
 // A Verifier represents a service which provides token decoding and validation.
 type Verifier struct {
-	issuer string
-	keys   map[string]*Cache
+	issuers []string
+	keys    map[string]*Cache
 }
 
 // NewVerifier creates a new instance of Verifier service.
 func NewVerifier(
 	svcJWKSet jwkservices.SetService,
 	tracer tlog.Tracer,
-	issuer string,
+	issuers ...string,
 ) (*Verifier, error) {
 	if tracer == nil {
 		tracer = tlog.NewTracerNop()
@@ -42,12 +42,11 @@ func NewVerifier(
 
 	jwkset, err := svcJWKSet.GetCerts(tracer)
 	if err != nil {
-		// TODO proper error type
 		return nil, err
 	}
 
 	result := &Verifier{
-		issuer,
+		issuers,
 		make(map[string]*Cache, 0),
 	}
 
@@ -58,19 +57,22 @@ func NewVerifier(
 		}
 
 		result.keys[k.ID] = &Cache{k, rawKey}
-		// TODO log loaded key
-		//fmt.Println("[Verifier] Loaded key:", k.ID)
+		tracer.AddEntry(
+			tlog.LevelInfo, "jwkset_key_loaded", "JWK set key loaded: "+k.ID,
+			0, nil, "Verifier", "NewVerifier")
 	}
-	// TODO log loaded keys
-	//fmt.Printf("[Verifier] Loaded %d keys\n", len(result.keys))
 
 	return result, nil
 }
 
 // Verify specified token and decode it.
-func (v *Verifier) Verify(rawtoken string) (*jws.SignedToken, error) {
+func (v *Verifier) Verify(
+	rawtoken string,
+	header jws.Header,
+	payload jwt.Claims,
+) (*jws.SignedToken, error) {
 	token, err := jws.DecodeAndValidate(
-		rawtoken, nil, nil,
+		rawtoken, header, payload,
 		func(header jws.Header) (interface{}, error) {
 			var key *Cache
 			var ok bool
@@ -91,7 +93,8 @@ func (v *Verifier) Verify(rawtoken string) (*jws.SignedToken, error) {
 	}
 
 	if !token.Validate() ||
-		token.Payload.GetIssuer() != v.issuer {
+		!slice.String(v.issuers).
+			Exists(token.Payload.GetIssuer(), false) {
 		return nil, ErrInvalidToken(0)
 	}
 
@@ -111,7 +114,7 @@ func (v *Verifier) VerifyScopes(
 			return false
 		}
 
-		if !dot.StringSlice(scopes).
+		if !slice.String(scopes).
 			ExistsAny(client, false) {
 			return false
 		}
@@ -123,7 +126,7 @@ func (v *Verifier) VerifyScopes(
 			return false
 		}
 
-		if !dot.StringSlice(scopes).
+		if !slice.String(scopes).
 			ExistsAny(user, false) {
 			return false
 		}

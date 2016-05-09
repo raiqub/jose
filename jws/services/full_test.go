@@ -104,7 +104,7 @@ func testCreateAndValidate(alg string, t *testing.T) {
 		t.Fatal("No keys loaded from URL")
 	}
 
-	vToken, err := verifier.Verify(token)
+	vToken, err := verifier.Verify(token, nil, nil)
 	if err != nil {
 		t.Fatalf("The token cannot be validated: %v", err)
 	}
@@ -209,7 +209,7 @@ func benchmarkTokenCreation(alg string, b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, err := verifier.Verify(token)
+		_, err := verifier.Verify(token, nil, nil)
 		if err != nil {
 			b.Fatalf("Error validating token: %v", err)
 		}
