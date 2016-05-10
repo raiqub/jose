@@ -30,13 +30,13 @@ import (
 // conveyed by the JWT.
 type CommonClaims struct {
 	ID        string      `json:"jti,omitempty"`
-	Issuer    string      `json:"iss"`
+	Issuer    string      `json:"iss,omitempty"`
 	Subject   string      `json:"sub,omitempty"`
-	Audience  string      `json:"aud"`
+	Audience  string      `json:"aud,omitempty"`
 	ExpireAt  UnixTime    `json:"exp"`
-	NotBefore UnixTime    `json:"nbf"`
-	IssuedAt  UnixTime    `json:"iat"`
-	Scopes    []string    `json:"scopes"`
+	NotBefore UnixTime    `json:"nbf,omitempty"`
+	IssuedAt  UnixTime    `json:"iat,omitempty"`
+	Scopes    []string    `json:"scopes,omitempty"`
 	User      *UserClaims `json:"user,omitempty"`
 }
 
@@ -45,8 +45,8 @@ type UserClaims struct {
 	Name    string   `json:"name"`
 	Email   string   `json:"email"`
 	Scopes  []string `json:"scopes"`
-	Country string   `json:"country"`
-	Tags    []string `json:"tags"`
+	Country string   `json:"country,omitempty"`
+	Tags    []string `json:"tags,omitempty"`
 }
 
 // GetAudience returns the recipients that the JWT is intended for.
@@ -147,12 +147,12 @@ func (p *CommonClaims) Validate() bool {
 	iat := p.IssuedAt.ToInt64()
 
 	// Enforce use of exp claim
-	if exp == 0 || now > exp {
+	if exp <= 0 || now > exp {
 		return false
 	}
 
 	// Reject invalid values
-	if exp < 0 || nbf < 0 || iat < 0 ||
+	if nbf < 0 || iat < 0 ||
 		exp < nbf || exp < iat {
 		return false
 	}

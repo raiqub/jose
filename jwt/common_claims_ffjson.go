@@ -38,36 +38,50 @@ func (mj *CommonClaims) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(mj.ID))
 		buf.WriteByte(',')
 	}
-	buf.WriteString(`"iss":`)
-	fflib.WriteJsonString(buf, string(mj.Issuer))
-	buf.WriteByte(',')
+	if len(mj.Issuer) != 0 {
+		buf.WriteString(`"iss":`)
+		fflib.WriteJsonString(buf, string(mj.Issuer))
+		buf.WriteByte(',')
+	}
 	if len(mj.Subject) != 0 {
 		buf.WriteString(`"sub":`)
 		fflib.WriteJsonString(buf, string(mj.Subject))
 		buf.WriteByte(',')
 	}
-	buf.WriteString(`"aud":`)
-	fflib.WriteJsonString(buf, string(mj.Audience))
-	buf.WriteString(`,"exp":`)
-	fflib.FormatBits2(buf, uint64(mj.ExpireAt), 10, mj.ExpireAt < 0)
-	buf.WriteString(`,"nbf":`)
-	fflib.FormatBits2(buf, uint64(mj.NotBefore), 10, mj.NotBefore < 0)
-	buf.WriteString(`,"iat":`)
-	fflib.FormatBits2(buf, uint64(mj.IssuedAt), 10, mj.IssuedAt < 0)
-	buf.WriteString(`,"scopes":`)
-	if mj.Scopes != nil {
-		buf.WriteString(`[`)
-		for i, v := range mj.Scopes {
-			if i != 0 {
-				buf.WriteString(`,`)
-			}
-			fflib.WriteJsonString(buf, string(v))
-		}
-		buf.WriteString(`]`)
-	} else {
-		buf.WriteString(`null`)
+	if len(mj.Audience) != 0 {
+		buf.WriteString(`"aud":`)
+		fflib.WriteJsonString(buf, string(mj.Audience))
+		buf.WriteByte(',')
 	}
+	buf.WriteString(`"exp":`)
+	fflib.FormatBits2(buf, uint64(mj.ExpireAt), 10, mj.ExpireAt < 0)
 	buf.WriteByte(',')
+	if mj.NotBefore != 0 {
+		buf.WriteString(`"nbf":`)
+		fflib.FormatBits2(buf, uint64(mj.NotBefore), 10, mj.NotBefore < 0)
+		buf.WriteByte(',')
+	}
+	if mj.IssuedAt != 0 {
+		buf.WriteString(`"iat":`)
+		fflib.FormatBits2(buf, uint64(mj.IssuedAt), 10, mj.IssuedAt < 0)
+		buf.WriteByte(',')
+	}
+	if len(mj.Scopes) != 0 {
+		buf.WriteString(`"scopes":`)
+		if mj.Scopes != nil {
+			buf.WriteString(`[`)
+			for i, v := range mj.Scopes {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
 	if mj.User != nil {
 		if true {
 			buf.WriteString(`"user":`)
@@ -700,7 +714,7 @@ func (mj *UserClaims) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	var obj []byte
 	_ = obj
 	_ = err
-	buf.WriteString(`{"name":`)
+	buf.WriteString(`{ "name":`)
 	fflib.WriteJsonString(buf, string(mj.Name))
 	buf.WriteString(`,"email":`)
 	fflib.WriteJsonString(buf, string(mj.Email))
@@ -717,21 +731,29 @@ func (mj *UserClaims) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	} else {
 		buf.WriteString(`null`)
 	}
-	buf.WriteString(`,"country":`)
-	fflib.WriteJsonString(buf, string(mj.Country))
-	buf.WriteString(`,"tags":`)
-	if mj.Tags != nil {
-		buf.WriteString(`[`)
-		for i, v := range mj.Tags {
-			if i != 0 {
-				buf.WriteString(`,`)
-			}
-			fflib.WriteJsonString(buf, string(v))
-		}
-		buf.WriteString(`]`)
-	} else {
-		buf.WriteString(`null`)
+	buf.WriteByte(',')
+	if len(mj.Country) != 0 {
+		buf.WriteString(`"country":`)
+		fflib.WriteJsonString(buf, string(mj.Country))
+		buf.WriteByte(',')
 	}
+	if len(mj.Tags) != 0 {
+		buf.WriteString(`"tags":`)
+		if mj.Tags != nil {
+			buf.WriteString(`[`)
+			for i, v := range mj.Tags {
+				if i != 0 {
+					buf.WriteString(`,`)
+				}
+				fflib.WriteJsonString(buf, string(v))
+			}
+			buf.WriteString(`]`)
+		} else {
+			buf.WriteString(`null`)
+		}
+		buf.WriteByte(',')
+	}
+	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
 }
