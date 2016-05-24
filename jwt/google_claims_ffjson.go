@@ -84,6 +84,11 @@ func (mj *GoogleClaims) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.WriteJsonString(buf, string(mj.Locale))
 		buf.WriteByte(',')
 	}
+	if len(mj.HostedDomain) != 0 {
+		buf.WriteString(`"hd":`)
+		fflib.WriteJsonString(buf, string(mj.HostedDomain))
+		buf.WriteByte(',')
+	}
 	buf.Rewind(1)
 	buf.WriteByte('}')
 	return nil
@@ -118,6 +123,8 @@ const (
 	ffj_t_GoogleClaims_FamilyName
 
 	ffj_t_GoogleClaims_Locale
+
+	ffj_t_GoogleClaims_HostedDomain
 )
 
 var ffj_key_GoogleClaims_Issuer = []byte("iss")
@@ -145,6 +152,8 @@ var ffj_key_GoogleClaims_GivenName = []byte("given_name")
 var ffj_key_GoogleClaims_FamilyName = []byte("family_name")
 
 var ffj_key_GoogleClaims_Locale = []byte("locale")
+
+var ffj_key_GoogleClaims_HostedDomain = []byte("hd")
 
 func (uj *GoogleClaims) UnmarshalJSON(input []byte) error {
 	fs := fflib.NewFFLexer(input)
@@ -252,6 +261,14 @@ mainparse:
 						goto mainparse
 					}
 
+				case 'h':
+
+					if bytes.Equal(ffj_key_GoogleClaims_HostedDomain, kn) {
+						currentKey = ffj_t_GoogleClaims_HostedDomain
+						state = fflib.FFParse_want_colon
+						goto mainparse
+					}
+
 				case 'i':
 
 					if bytes.Equal(ffj_key_GoogleClaims_Issuer, kn) {
@@ -297,6 +314,12 @@ mainparse:
 						goto mainparse
 					}
 
+				}
+
+				if fflib.SimpleLetterEqualFold(ffj_key_GoogleClaims_HostedDomain, kn) {
+					currentKey = ffj_t_GoogleClaims_HostedDomain
+					state = fflib.FFParse_want_colon
+					goto mainparse
 				}
 
 				if fflib.SimpleLetterEqualFold(ffj_key_GoogleClaims_Locale, kn) {
@@ -432,6 +455,9 @@ mainparse:
 
 				case ffj_t_GoogleClaims_Locale:
 					goto handle_Locale
+
+				case ffj_t_GoogleClaims_HostedDomain:
+					goto handle_HostedDomain
 
 				case ffj_t_GoogleClaimsno_such_key:
 					err = fs.SkipField(tok)
@@ -795,6 +821,32 @@ handle_Locale:
 			outBuf := fs.Output.Bytes()
 
 			uj.Locale = string(string(outBuf))
+
+		}
+	}
+
+	state = fflib.FFParse_after_value
+	goto mainparse
+
+handle_HostedDomain:
+
+	/* handler: uj.HostedDomain type=string kind=string quoted=false*/
+
+	{
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
+		}
+
+		if tok == fflib.FFTok_null {
+
+		} else {
+
+			outBuf := fs.Output.Bytes()
+
+			uj.HostedDomain = string(string(outBuf))
 
 		}
 	}
