@@ -42,6 +42,7 @@ type GoogleClaims struct {
 	GivenName     string `json:"given_name,omitempty"`
 	FamilyName    string `json:"family_name,omitempty"`
 	Locale        string `json:"locale,omitempty"`
+	HostedDomain  string `json:"hd,omitempty"`
 }
 
 // GetAudience returns the recipients that the JWT is intended for.
