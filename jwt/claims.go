@@ -31,10 +31,3 @@ type Claims interface {
 	json.Marshaler
 	json.Unmarshaler
 }
-
-// A ClientUserScopes represents a Claims set which provides client and user
-// scopes.
-type ClientUserScopes interface {
-	GetScopes() []string
-	GetUserScopes() []string
-}

@@ -69,19 +69,9 @@ func (*GoogleClaims) GetNotBefore() time.Time {
 	return time.Unix(0, 0)
 }
 
-// GetScopes returns null.
-func (*GoogleClaims) GetScopes() []string {
-	return nil
-}
-
 // GetSubject returns the principal that is the subject of the JWT.
 func (gc *GoogleClaims) GetSubject() string {
 	return gc.Subject
-}
-
-// GetUserScopes returns null.
-func (*GoogleClaims) GetUserScopes() []string {
-	return nil
 }
 
 // SetExpireAt defines the token expiration date.

@@ -19,7 +19,6 @@ package services
 import (
 	jwkservices "github.com/raiqub/jose/jwk/services"
 	"github.com/raiqub/jose/jws"
-	"github.com/raiqub/jose/jwt"
 	"github.com/raiqub/tlog"
 	"gopkg.in/raiqub/slice.v1"
 )
@@ -102,38 +101,4 @@ func (v *Verifier) Verify(
 	}
 
 	return token, nil
-}
-
-// VerifyScopes validates client and user scopes when available.
-func (v *Verifier) VerifyScopes(
-	claims jwt.ClientUserScopes,
-	client, user []string,
-) bool {
-	var scopes []string
-
-	if client != nil && len(client) > 0 {
-		scopes = claims.GetScopes()
-		if scopes == nil || len(scopes) == 0 {
-			return false
-		}
-
-		if !slice.String(scopes).
-			ExistsAny(client, false) {
-			return false
-		}
-	}
-
-	if user != nil && len(user) > 0 {
-		scopes = claims.GetUserScopes()
-		if scopes == nil || len(scopes) == 0 {
-			return false
-		}
-
-		if !slice.String(scopes).
-			ExistsAny(user, false) {
-			return false
-		}
-	}
-
-	return true
 }

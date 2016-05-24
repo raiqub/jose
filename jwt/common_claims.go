@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/pquerna/ffjson/ffjson"
+	"gopkg.in/raiqub/slice.v1"
 )
 
 // A CommonClaims set represents a JSON object whose members are the claims
@@ -74,23 +75,39 @@ func (p *CommonClaims) GetNotBefore() time.Time {
 	return p.NotBefore.ToTime()
 }
 
-// GetScopes returns the scopes allowed to client.
-func (p *CommonClaims) GetScopes() []string {
-	return p.Scopes
-}
-
 // GetSubject returns the principal that is the subject of the JWT.
 func (p *CommonClaims) GetSubject() string {
 	return p.Subject
 }
 
-// GetUserScopes returns the scopes allowed to user.
-func (p *CommonClaims) GetUserScopes() []string {
-	if p.User == nil {
-		return nil
+// HasClientScopes determines whether any of specified client scopes exists on current
+// instance.
+func (p *CommonClaims) HasClientScopes(scopes ...string) bool {
+	if scopes == nil || len(scopes) == 0 {
+		return true
 	}
 
-	return p.User.Scopes
+	if p.Scopes == nil || len(p.Scopes) == 0 {
+		return false
+	}
+
+	return slice.String(p.Scopes).
+		ExistsAny(scopes, false)
+}
+
+// HasUserScopes determines whether any of specified user scopes exists on current
+// instance.
+func (p *CommonClaims) HasUserScopes(scopes ...string) bool {
+	if scopes == nil || len(scopes) == 0 {
+		return true
+	}
+
+	if p.User == nil || p.User.Scopes == nil || len(p.User.Scopes) == 0 {
+		return false
+	}
+
+	return slice.String(p.User.Scopes).
+		ExistsAny(scopes, false)
 }
 
 // SetExpireAt defines the token expiration date.
