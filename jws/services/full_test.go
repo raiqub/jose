@@ -151,7 +151,7 @@ func TestCreateAndValidatePS512(t *testing.T) {
 	testCreateAndValidate(jwa.PS512, t)
 }
 
-func createJWTPayload() jwt.Claims {
+func createJWTPayload() *jwt.CommonClaims {
 	return &jwt.CommonClaims{
 		Audience: audience,
 		Subject:  "gG26se5wyWDOEjaNHwlXm2i9G3mnYGbG62BBq3ZE",

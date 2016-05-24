@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-package jwt
+package services
 
 import (
-	"encoding/json"
-	"io"
+	"time"
+
+	"github.com/raiqub/jose/jwt"
 )
 
-// A Claims set represents a JSON object whose members are the claims conveyed
-// by the JWT.
-type Claims interface {
-	Decode(string) error
-	Encode(io.Writer) error
-	Validate() bool
+// A ClaimsSecure represents a JSON object which has a basic set of claims to safely
+// validate it.
+type ClaimsSecure interface {
+	GetAudience() string
+	GetExpireAt() time.Time
+	GetIssuedAt() time.Time
+	GetIssuer() string
+	GetNotBefore() time.Time
+	GetSubject() string
 
-	json.Marshaler
-	json.Unmarshaler
-}
+	SetExpireAt(time.Time)
+	SetIssuedAt(time.Time)
+	SetIssuer(string)
+	SetNotBefore(time.Time)
 
-// A ClientUserScopes represents a Claims set which provides client and user
-// scopes.
-type ClientUserScopes interface {
-	GetScopes() []string
-	GetUserScopes() []string
+	jwt.Claims
 }

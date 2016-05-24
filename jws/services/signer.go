@@ -21,7 +21,6 @@ import (
 
 	"github.com/raiqub/jose/jwk/adapters"
 	"github.com/raiqub/jose/jws"
-	"github.com/raiqub/jose/jwt"
 )
 
 // A Signer represents a service which provides token creation and signing.
@@ -50,7 +49,7 @@ func NewSigner(adpSet adapters.Set, config Config) (*Signer, error) {
 }
 
 // Create a new token and sign it.
-func (s *Signer) Create(payload jwt.Claims) (string, error) {
+func (s *Signer) Create(payload ClaimsSecure) (string, error) {
 	now := time.Now()
 
 	payload.SetIssuer(s.config.Issuer)
@@ -58,7 +57,7 @@ func (s *Signer) Create(payload jwt.Claims) (string, error) {
 	payload.SetNotBefore(now)
 	payload.SetIssuedAt(now)
 
-	header := &jws.RegisteredHeader{
+	header := &jws.RegHeader{
 		ID:        s.config.SignKeyID,
 		Type:      jws.JWTHeaderType,
 		Algorithm: s.keyCache.JWK.Algorithm,

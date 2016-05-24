@@ -23,9 +23,9 @@ const (
 	JWTHeaderType = "JOSE"
 )
 
-// A RegisteredHeader represents the JOSE header with all registered parameter
+// A RegHeader represents the JOSE header with all registered parameter
 // names.
-type RegisteredHeader struct {
+type RegHeader struct {
 	ID          string   `json:"kid,omitempty"`
 	Type        string   `json:"typ,omitempty"`
 	ContentType string   `json:"cty,omitempty"`
@@ -40,26 +40,26 @@ type RegisteredHeader struct {
 }
 
 // NewHeader creates a new instance of Header type.
-func NewHeader(alg string) *RegisteredHeader {
-	return &RegisteredHeader{
+func NewHeader(alg string) *RegHeader {
+	return &RegHeader{
 		Type:      JWTHeaderType,
 		Algorithm: alg,
 	}
 }
 
 // GetID returns the identifier of the key used to sign current token.
-func (h *RegisteredHeader) GetID() string {
+func (h *RegHeader) GetID() string {
 	return h.ID
 }
 
 // GetAlgorithm returns the algorithm used to sign current token.
-func (h *RegisteredHeader) GetAlgorithm() string {
+func (h *RegHeader) GetAlgorithm() string {
 	return h.Algorithm
 }
 
 // GetJWKSetURL returns a URL to retrieve the key used to sign current token.
-func (h *RegisteredHeader) GetJWKSetURL() string {
+func (h *RegHeader) GetJWKSetURL() string {
 	return h.JWKSetURL
 }
 
-var _ Header = (*RegisteredHeader)(nil)
+var _ Header = (*RegHeader)(nil)

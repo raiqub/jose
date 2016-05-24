@@ -69,7 +69,7 @@ func NewVerifier(
 func (v *Verifier) Verify(
 	rawtoken string,
 	header jws.Header,
-	payload jwt.Claims,
+	payload ClaimsSecure,
 ) (*jws.SignedToken, error) {
 	token, err := jws.DecodeAndValidate(
 		rawtoken, header, payload,
@@ -92,9 +92,12 @@ func (v *Verifier) Verify(
 		return nil, err
 	}
 
-	if !token.Validate() ||
-		!slice.String(v.issuers).
-			Exists(token.Payload.GetIssuer(), false) {
+	if !token.Validate() {
+		return nil, ErrInvalidToken(0)
+	}
+
+	if secPayload, ok := token.Payload.(ClaimsSecure); !ok ||
+		!slice.String(v.issuers).Exists(secPayload.GetIssuer(), false) {
 		return nil, ErrInvalidToken(0)
 	}
 

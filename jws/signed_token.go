@@ -38,7 +38,7 @@ type SignedToken struct {
 // NewSignedToken creates a new instance of SignedToken using default header and
 // payload.
 func NewSignedToken(alg string) *SignedToken {
-	header := RegisteredHeader{
+	header := RegHeader{
 		Algorithm: alg,
 	}
 
@@ -64,7 +64,7 @@ func DecodeAndValidate(
 	lastDotIdx := strings.LastIndex(token, ".")
 
 	if header == nil {
-		header = &RegisteredHeader{}
+		header = &RegHeader{}
 	}
 	if payload == nil {
 		payload = &jwt.CommonClaims{}
